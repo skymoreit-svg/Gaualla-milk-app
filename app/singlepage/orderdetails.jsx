@@ -1,10 +1,11 @@
-import { View, Text, ScrollView, Image } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, Image, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 import { baseurl, imgurl } from '../Components/allapi';
 import * as SecureStore from "expo-secure-store";
+import MapView, { Marker, Polyline } from "react-native-maps";
 import { 
   Package, 
   Calendar, 
@@ -21,28 +22,41 @@ import {
 const OrderDetails = () => {
   const { id } = useLocalSearchParams();
   const [order, setOrder] = useState(null);
+  const [tracking, setTracking] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [trackingLoading, setTrackingLoading] = useState(true);
 
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     try {
       const token = await SecureStore.getItem("authToken");
-      const response = await axios.get(`${baseurl}/order/getsingleorder/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      const data = response.data;
-      setOrder(data.order);
+      const [orderRes, trackingRes] = await Promise.all([
+        axios.get(`${baseurl}/order/getsingleorder/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`${baseurl}/order/track/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).catch(() => ({ data: { success: false } })),
+      ]);
+
+      if (orderRes.data?.success) {
+        setOrder(orderRes.data.order);
+      }
+      if (trackingRes.data?.success) {
+        setTracking(trackingRes.data.tracking);
+      }
     } catch (error) {
       console.error("Error fetching order:", error);
     } finally {
       setLoading(false);
+      setTrackingLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchOrder();
-  }, []);
+    const interval = setInterval(fetchOrder, 8000);
+    return () => clearInterval(interval);
+  }, [fetchOrder]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -95,6 +109,18 @@ const OrderDetails = () => {
     }
   };
 
+  const getDeliverySteps = (deliveryStatus) => {
+    const statuses = ["unassigned", "assigned", "accepted", "picked_up", "in_transit", "delivered"];
+    const currentIdx = statuses.indexOf(deliveryStatus || "unassigned");
+    return [
+      { key: "assigned", label: "Assigned", done: currentIdx >= 1 },
+      { key: "accepted", label: "Accepted", done: currentIdx >= 2 },
+      { key: "picked_up", label: "Picked Up", done: currentIdx >= 3 },
+      { key: "in_transit", label: "In Transit", done: currentIdx >= 4 },
+      { key: "delivered", label: "Delivered", done: currentIdx >= 5 },
+    ];
+  };
+
   // Parse product images
   const parseProductImages = (imageString) => {
     try {
@@ -109,6 +135,7 @@ const OrderDetails = () => {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center">
+        <ActivityIndicator size="large" color="#3b82f6" />
         <Text className="text-lg text-gray-600">Loading order details...</Text>
       </SafeAreaView>
     );
@@ -159,6 +186,106 @@ const OrderDetails = () => {
             <Text className="ml-2 text-gray-600">Placed on {formatDate(order.created_at)}</Text>
           </View>
         </View>
+
+        {/* Delivery Tracking Section (similar to website) */}
+        {!trackingLoading && tracking?.delivery_status && tracking.delivery_status !== "unassigned" && (
+          <View className="bg-white mx-5 my-2 rounded-xl p-5 border border-gray-200">
+            <View className="flex-row items-center mb-4">
+              <Truck size={20} color="#2563eb" />
+              <Text className="ml-2 text-lg font-semibold text-gray-900">Delivery Tracking</Text>
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-gray-600 text-sm mb-2">Status Timeline</Text>
+              <View className="flex-row flex-wrap gap-2">
+                {getDeliverySteps(tracking.delivery_status).map((step) => (
+                  <View
+                    key={step.key}
+                    className={`px-3 py-1.5 rounded-full border ${step.done ? "bg-green-100 border-green-300" : "bg-gray-100 border-gray-200"}`}
+                  >
+                    <Text className={`text-xs font-medium ${step.done ? "text-green-700" : "text-gray-500"}`}>
+                      {step.label}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            {tracking.rider && (
+              <View className="mb-4 p-3 rounded-lg border border-gray-200 bg-gray-50">
+                <Text className="text-sm text-gray-600 mb-1">Assigned Rider</Text>
+                <Text className="text-base font-semibold text-gray-900">{tracking.rider.name}</Text>
+                <Text className="text-sm text-gray-600 mt-1">{tracking.rider.phone || "Phone hidden"}</Text>
+                <Text className="text-sm text-gray-600 mt-1 capitalize">
+                  {tracking.rider.vehicle_type || "vehicle"} {tracking.rider.vehicle_number ? `- ${tracking.rider.vehicle_number}` : ""}
+                </Text>
+              </View>
+            )}
+
+            {tracking.delivery_status === "in_transit" && tracking.delivery_otp && (
+              <View className="mb-4 p-3 rounded-lg border border-yellow-200 bg-yellow-50">
+                <Text className="text-xs text-yellow-700 mb-1">Delivery OTP</Text>
+                <Text className="text-2xl tracking-widest font-bold text-yellow-900">{tracking.delivery_otp}</Text>
+                <Text className="text-xs text-yellow-700 mt-1">Share this OTP with rider to complete delivery.</Text>
+              </View>
+            )}
+
+            {["picked_up", "in_transit"].includes(tracking.delivery_status) &&
+              (tracking.rider?.latitude || order?.address?.latitude) && (
+                <View>
+                  <Text className="text-gray-600 text-sm mb-2">Live Map</Text>
+                  <MapView
+                    style={{ height: 260, borderRadius: 12 }}
+                    initialRegion={{
+                      latitude: parseFloat(tracking.rider?.latitude || order.address.latitude),
+                      longitude: parseFloat(tracking.rider?.longitude || order.address.longitude),
+                      latitudeDelta: 0.02,
+                      longitudeDelta: 0.02,
+                    }}
+                  >
+                    {tracking.rider?.latitude && tracking.rider?.longitude && (
+                      <Marker
+                        coordinate={{
+                          latitude: parseFloat(tracking.rider.latitude),
+                          longitude: parseFloat(tracking.rider.longitude),
+                        }}
+                        title="Rider Location"
+                        description={tracking.rider.name || "Rider"}
+                        pinColor="#2563eb"
+                      />
+                    )}
+                    {order?.address?.latitude && order?.address?.longitude && (
+                      <Marker
+                        coordinate={{
+                          latitude: parseFloat(order.address.latitude),
+                          longitude: parseFloat(order.address.longitude),
+                        }}
+                        title="Delivery Address"
+                        description="Your order destination"
+                        pinColor="#16a34a"
+                      />
+                    )}
+                    {tracking.rider?.latitude && tracking.rider?.longitude && order?.address?.latitude && order?.address?.longitude && (
+                      <Polyline
+                        coordinates={[
+                          {
+                            latitude: parseFloat(tracking.rider.latitude),
+                            longitude: parseFloat(tracking.rider.longitude),
+                          },
+                          {
+                            latitude: parseFloat(order.address.latitude),
+                            longitude: parseFloat(order.address.longitude),
+                          },
+                        ]}
+                        strokeColor="#2563eb"
+                        strokeWidth={3}
+                      />
+                    )}
+                  </MapView>
+                </View>
+              )}
+          </View>
+        )}
 
         {/* Order Items */}
         <View className="bg-white mx-5 my-2 rounded-xl p-5 border border-gray-200">
@@ -236,6 +363,11 @@ const OrderDetails = () => {
                 {order.city}, {order.state} {order.zip_code}
               </Text>
               <Text className="text-gray-600 text-sm">{order.country}</Text>
+              {(order.address?.latitude || order.address?.longitude) && (
+                <Text className="text-gray-500 text-xs mt-2">
+                  Lat: {order.address?.latitude || "N/A"} | Lng: {order.address?.longitude || "N/A"}
+                </Text>
+              )}
             </View>
           </View>
         </View>
