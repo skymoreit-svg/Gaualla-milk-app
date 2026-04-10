@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";  // ✅ import added
-import { baseurl } from "../Components/allapi";
+import { baseurl } from "../../allapi";
 
 // Async thunk
 export const getUser = createAsyncThunk("/user", async (_, { rejectWithValue }) => {
@@ -19,6 +19,9 @@ export const getUser = createAsyncThunk("/user", async (_, { rejectWithValue }) 
     });
     return res.data;
   } catch (err) {
+    if (err.response?.status === 401) {
+      await SecureStore.deleteItemAsync("authToken");
+    }
     return rejectWithValue(err.response?.data || err.message);
   }
 });

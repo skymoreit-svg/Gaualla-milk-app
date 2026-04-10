@@ -8,12 +8,28 @@ import { TouchableOpacity } from 'react-native';
 const about = () => {
   const router = useRouter();
 
+  const handleGoBack = () => {
+    const canGoBack = router.canGoBack();
+    console.log("[BackButton] about pressed", { canGoBack });
+    if (router.canGoBack()) {
+      console.log("[BackButton] about -> router.back()");
+      router.back();
+      return;
+    }
+    console.log("[BackButton] about -> fallback /(tab)/profile");
+    router.replace("/(tab)/profile");
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
       <View className="flex-row items-center px-5 py-4 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <ArrowLeft size={24} color="#374151" />
+        <TouchableOpacity
+          onPress={handleGoBack}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          className="mr-4 p-2 rounded-lg"
+        >
+          <ArrowLeft pointerEvents="none" size={24} color="#374151" />
         </TouchableOpacity>
         <Text className="text-xl font-bold text-gray-900">About Us</Text>
       </View>

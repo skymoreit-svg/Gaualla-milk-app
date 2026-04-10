@@ -10,8 +10,10 @@ export default function TabLayout() {
     <Tabs 
       screenOptions={{
         headerShown: false,
+        tabBarShowLabel: false,
         tabBarStyle: {
-          height: 70,
+          height: 64,
+          paddingTop: 0,
           paddingBottom: 0,
           backgroundColor: '#ffffff',
           borderTopWidth: 0,
@@ -21,11 +23,7 @@ export default function TabLayout() {
           shadowRadius: 10,
         },
         tabBarItemStyle: {
-          paddingVertical: 8,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          marginBottom: 8,
+          paddingVertical: 0,
         },
         tabBarActiveTintColor: '#16a34a', // green-600
         tabBarInactiveTintColor: '#9ca3af', // gray-400
@@ -39,7 +37,6 @@ export default function TabLayout() {
               <AntDesign name="home" size={24} color={color} />
             </View>
           ),
-          tabBarLabel: "Home",
         }}
       />
 
@@ -51,7 +48,6 @@ export default function TabLayout() {
               <MaterialIcons name="category" size={24} color={color} />
             </View>
           ),
-          tabBarLabel: "Category",
         }}
       />
 
@@ -63,7 +59,6 @@ export default function TabLayout() {
               <FontAwesome name="opencart" size={22} color={color} />
             </View>
           ),
-          tabBarLabel: "Cart",
         }}
       />
 
@@ -75,7 +70,6 @@ export default function TabLayout() {
               <FontAwesome6 name="clipboard-list" size={22} color={color} />
             </View>
           ),
-          tabBarLabel: "Orders",
         }}
       />
 
@@ -87,7 +81,6 @@ export default function TabLayout() {
               <FontAwesome name="user" size={22} color={color} />
             </View>
           ),
-          tabBarLabel: "Profile",
         }}
       />
     </Tabs>

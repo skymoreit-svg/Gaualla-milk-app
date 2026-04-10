@@ -16,7 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { baseurl, imageurl } from '../Components/allapi';
+import { baseurl, imageurl } from '../../allapi';
 import AddressForm from './AddressForm';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -118,96 +118,29 @@ const Checkout = () => {
     }
   };
 
-const handlePlaceOrder =  () => {
-
+const handlePlaceOrder = () => {
   if (!defaultAddress) {
     setError("Please select a delivery address");
     return;
   }
-      // const token = await SecureStore.getItemAsync('authToken');
 
   const amountToPay = parseFloat(order.total_price * subscriptionDuration).toFixed(2);
 
-router.push({
-      pathname: "/singlepage/RazorpayCheckout",
-      params: {
-        defaultAddress: JSON.stringify(defaultAddress),
-        product_id: order.product_id,
-        quantity: order.quantity,
-        price: order.cart_price,
-        amountToPay: amountToPay.toString(),
-      },
-    });
-
-
-
-//   try {
-//     // 👉 1. Create order on backend
-//     const { data } = await axios.post(`${baseurl}/order/create`, {
-//       amount: amountToPay,
-//     },{headers: {
-//           Authorization: `Bearer ${token}`,
-//         },});
-
-//     if (!data.success) {
-//       setError("Failed to create Razorpay order");
-//       return;
-//     }
-
-//     // 👉 2. Setup Razorpay Options
-//    const options = {
-//   description: 'Order Payment',
-//   image: 'https://yourcdn.com/logo.png',
-//   currency: 'INR',
-//   key: 'rzp_test_RAm3ngY6JIbOzo',
-//   amount: 5000, // paise = ₹50
-//   name: 'Milk App',
-//   order_id: data.order.id, 
-//   prefill: {
-//     email: 'test@example.com',
-//     contact: '9999999999',
-//     name: 'Jon',
-//   },
-//   theme: { color: '#3399cc' },
-// };
-
-//     // 👉 3. Open Razorpay Checkout
-//     RazorpayCheckout.open(options)
-//       .then(async (paymentData) => {
-//         // success callback
-//         const verifyRes = await axios.post(`${baseurl}/order/verify`, {
-//           razorpay_order_id: paymentData.razorpay_order_id,
-//           razorpay_payment_id: paymentData.razorpay_payment_id,
-//           razorpay_signature: paymentData.razorpay_signature,
-//           address_id: defaultAddress,
-//           total_amount: amountToPay,
-//           type: selectedFrequency,
-//           cart_items: [
-//             {
-//               product_id: order.product_id,
-//               quantity: order.quantity,
-//               price: order.cart_price,
-//             },
-//           ],
-//         },{headers: {
-//           Authorization: `Bearer ${token}`,
-//         },});
-
-//         if (verifyRes.data.success) {
-//           Alert.alert('Success', 'Payment Successful!');
-//           router.push('/');
-//         } else {
-//           Alert.alert('Error', 'Payment verification failed!');
-//         }
-//       })
-//       .catch((error) => {
-//         console.log(error)
-//         Alert.alert('Error', error.description || 'Payment Cancelled');
-//       });
-//   } catch (err) {
-//     console.error(err);
-//     setError("Something went wrong while placing order");
-//   }
+  router.push({
+    pathname: "/singlepage/RazorpayCheckout",
+    params: {
+      defaultAddress: String(defaultAddress),
+      amountToPay: amountToPay.toString(),
+      selectedFrequency,
+      cartItems: JSON.stringify([
+        {
+          product_id: order.product_id,
+          quantity: order.quantity,
+          price: order.cart_price,
+        },
+      ]),
+    },
+  });
 };
 
 

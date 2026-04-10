@@ -1,0 +1,47 @@
+diff --git a/node_modules/react-native-razorpay/ios/RazorpayCheckout.m b/node_modules/react-native-razorpay/ios/RazorpayCheckout.m
+index 36144c9..e8d407f 100644
+--- a/node_modules/react-native-razorpay/ios/RazorpayCheckout.m
++++ b/node_modules/react-native-razorpay/ios/RazorpayCheckout.m
+@@ -13,8 +13,7 @@
+ 
+ typedef RazorpayCheckout Razorpay;
+ 
+-@interface RNRazorpayCheckout () <RazorpayPaymentCompletionProtocolWithData,
+-ExternalWalletSelectionProtocol>
++@interface RNRazorpayCheckout ()
+ 
+ @end
+ 
+@@ -28,7 +27,6 @@ @implementation RNRazorpayCheckout
+     dispatch_sync(dispatch_get_main_queue(), ^{
+         Razorpay *razorpay = [Razorpay initWithKey:keyID
+                                andDelegateWithData:self];
+-        [razorpay setExternalWalletSelectionDelegate:self];
+         NSMutableDictionary * tempOptions = [[NSMutableDictionary alloc] initWithDictionary:options];
+         //tempOptions[@"integration_version"] = [self findReactNativeVersion];
+         tempOptions[@"integration"] = @"react_native";
+@@ -98,10 +96,4 @@ - (void)onPaymentError:(int)code
+     [RazorpayEventEmitter onPaymentError:code description:str andData:response];
+ }
+ 
+-- (void)onExternalWalletSelected:(nonnull NSString *)walletName
+-                 WithPaymentData:(nullable NSDictionary *)paymentData {
+-    [RazorpayEventEmitter onExternalWalletSelected:walletName
+-                                           andData:paymentData];
+-}
+-
+ @end
+diff --git a/node_modules/react-native-razorpay/react-native-razorpay.podspec b/node_modules/react-native-razorpay/react-native-razorpay.podspec
+index 90e1a83..20e46e8 100644
+--- a/node_modules/react-native-razorpay/react-native-razorpay.podspec
++++ b/node_modules/react-native-razorpay/react-native-razorpay.podspec
+@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
+   s.source       = { :git => "https://github.com/razorpay/react-native-razorpay.git", :tag => "v#{s.version}" }
+   s.source_files  = "ios/**/*.{h,m}"
+ 
+-  s.dependency 'React'
++  s.dependency 'React-Core'
+   s.dependency 'razorpay-pod'
+ 
+ end
+\ No newline at end of file

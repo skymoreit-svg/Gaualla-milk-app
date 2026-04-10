@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { baseurl, imgurl } from "../Components/allapi";
+import { baseurl, imgurl } from "../../allapi";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -100,10 +100,14 @@ export default function Cart() {
             {/* Quantity Controls */}
             <View className="flex-row items-center mt-3">
               <TouchableOpacity
-                onPress={() => updateQuantity(item.cart_id, false)}
+                onPress={() =>
+                  item.quantity <= 1
+                    ? handleRemove(item.cart_id)
+                    : updateQuantity(item.cart_id, false)
+                }
                 className="bg-gray-200 w-9 h-9 rounded-full items-center justify-center mr-3"
               >
-                <AntDesign name="minus" size={20} color="#374151" />
+                <AntDesign name={item.quantity <= 1 ? "delete" : "minus"} size={18} color={item.quantity <= 1 ? "#ef4444" : "#374151"} />
               </TouchableOpacity>
               <Text className="text-lg font-semibold text-gray-800">{item.quantity}</Text>
               <TouchableOpacity
@@ -139,7 +143,7 @@ export default function Cart() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-gray-100" edges={['top', 'left', 'right']}>
       {isUser ? (<View className="flex-1 ">
         <FlatList
           data={cartData}

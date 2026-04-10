@@ -2,17 +2,18 @@ import EvilIcons from '@expo/vector-icons/EvilIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Octicons from '@expo/vector-icons/Octicons';
 import { Link, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Dimensions, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Dimensions, FlatList, Image, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomImage from "../../assets/bannerimages/bottimg.png";
 import ComboProductCompo from '../Components/ComboProductCompo';
 import ProductCard from '../Components/ProductCard';
 import axios from 'axios';
-import { baseurl, imgurl } from '../Components/allapi';
-import { useDispatch } from 'react-redux';
+import { baseurl, imgurl } from '../../allapi';
+import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from '../store/userSlice';
+import * as Location from 'expo-location';
 
 import styles from '../../assets/style'
 
@@ -78,23 +79,31 @@ const packageData = [
 
 export default function index() {
   const [bannerImage, setBannerImage] = useState([]);
-    const [cat, setCat] = useState([]);
-      const [allproduct, setAllproduct] = useState([]);
-const dispatch = useDispatch()
+  const [cat, setCat] = useState([]);
+  const [allproduct, setAllproduct] = useState([]);
+  const [userLocation, setUserLocation] = useState("Fetching location...");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
 
-const fetchBanner = async () => {
-  try {
-    const response = await axios.get(`${baseurl}/banner`);
-    const data = response.data;
-    if (data.success) {
-      setBannerImage(data.banners); // assuming backend returns { success: true, banner: [...] }
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const { isUser, info } = useSelector((state) => state.user);
+
+  const username = isUser && info?.user?.name ? info.user.name.split(' ')[0] : "Guest";
+
+  const fetchBanner = async () => {
+    try {
+      const response = await axios.get(`${baseurl}/banner`);
+      const data = response.data;
+      if (data.success) {
+        setBannerImage(data.banners);
+      }
+    } catch (err) {
+      console.log("Banner fetch error:", err);
     }
-  } catch (err) {
-    console.log("Banner fetch error:", err);
-  }
-};
+  };
 
- const fetchCategory = async () => {
+  const fetchCategory = async () => {
     try {
       const response = await axios.get(`${baseurl}/category/`);
       const data = response.data;
@@ -106,7 +115,7 @@ const fetchBanner = async () => {
     }
   };
 
-    const handelcatagypress = async (category = "all") => {
+  const handelcatagypress = async (category = "all") => {
     try {
       const response = await axios.get(`${baseurl}/getproduct/${category}`);
       const data = response.data;
@@ -118,53 +127,76 @@ const fetchBanner = async () => {
     }
   };
 
+  const fetchLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setUserLocation("Location not available");
+        return;
+      }
+      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const [place] = await Location.reverseGeocodeAsync({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+      });
+      if (place) {
+        const parts = [place.subLocality || place.name, place.city || place.district].filter(Boolean);
+        setUserLocation(parts.join(', ') || "Unknown location");
+      }
+    } catch (err) {
+      console.log("Location error:", err);
+      setUserLocation("Location unavailable");
+    }
+  };
 
-useEffect(() => {
+  useEffect(() => {
+    dispatch(getUser());
+    fetchBanner();
+    fetchCategory();
+    handelcatagypress();
+    fetchLocation();
+  }, []);
 
-  dispatch(getUser())
-  fetchBanner();
-  fetchCategory();
-  handelcatagypress()
-}, []);
-  
-  const username="Guest"
-  const location= "Delhi"
-const router= useRouter()
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        dispatch(getUser()),
+        fetchBanner(),
+        fetchCategory(),
+        handelcatagypress(),
+        fetchLocation(),
+      ]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
 
-const handelcatagypress2=(id)=>{
-router.push({pathname:"/singlepage/Productcatagory",params:{ categoryId: id }})
-}
+const handelcatagypress2 = (categoryName) => {
+  router.push({
+    pathname: "/(tab)/category",
+    params: { category: categoryName },
+  });
+};
 
 
   return (
-    <SafeAreaView>
-   <ScrollView className=''>  
+    <SafeAreaView className="flex-1 bg-gray-100" edges={['top', 'left', 'right']}>
+   <ScrollView
+     refreshControl={
+       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#16a34a']} tintColor="#16a34a" />
+     }
+   >
 <View className='px-3'>
-<View className='flex flex-row gap-1'>
   <View className='flex flex-row gap-1'>
-  <Text className='font-semibold text-xl'>Hello</Text>
-  <Text className='font-semibold text-green-600 text-xl'>{username},</Text>
-</View>
- <View className='flex flex-row gap-1'>
-  <View className='brd-crt'>
-    <MaterialIcons name="location-pin" size={20} color="#a61407" />
+    <Text className='font-semibold text-xl'>Hello</Text>
+    <Text className='font-semibold text-green-600 text-xl' numberOfLines={1}>{username},</Text>
   </View>
-  <View>
+  <View className='flex flex-row gap-1 items-center mt-1'>
     <MaterialIcons name="location-pin" size={20} color="#a61407" />
+    <Text className='font-medium text-sm text-gray-700' numberOfLines={1} style={{ maxWidth: width - 80 }}>{userLocation}</Text>
+    <EvilIcons name="chevron-down" size={20} color="green" />
   </View>
- </View>
-
-</View>
-<View className='flex flex-row gap-1 items-center'>
-<MaterialIcons name="location-pin" size={23} color="#a61407" />
-<Text className='font-semibold text-md' >{location}</Text>
-<EvilIcons name="chevron-down" size={24} color="green" className='mb-3' />
-
-
-</View>
-
-
 </View>
 
 <View className='px-3 my-2'>
@@ -221,34 +253,33 @@ router.push({pathname:"/singlepage/Productcatagory",params:{ categoryId: id }})
   </View>
 
   
-  <ScrollView 
-    horizontal 
+  <FlatList
+    horizontal
+    data={cat}
+    keyExtractor={(item, index) => String(item.id || index)}
     showsHorizontalScrollIndicator={false}
-    className="pl-5"
-    contentContainerStyle={{paddingRight: 20}}
-  >
-    {cat?.map((item, index) => (
-      <TouchableOpacity 
-        key={index} 
-        onPress={()=>handelcatagypress2(item.name)}
-        className="items-center mr-3 active:opacity-70"
-        activeOpacity={0.8}
+    nestedScrollEnabled
+    contentContainerStyle={{ paddingLeft: 20, paddingRight: 20 }}
+    renderItem={({ item }) => (
+      <TouchableOpacity
+        onPress={() => handelcatagypress2(item.name)}
+        className="items-center mr-3"
+        activeOpacity={0.9}
       >
         <View className="bg-gray-100 p-[2px] rounded-2xl shadow-sm">
-          <Image 
-            source={{uri: `${imgurl}/${item.image}`}}  
-            height={80} 
-            width={80} 
+          <Image
+            source={{ uri: `${imgurl}/${item.image}` }}
+            height={80}
+            width={80}
             className="rounded-xl"
-            // resizeMode="contain"
           />
         </View>
         <Text className="mt-2 text-sm font-medium text-gray-700">
           {item.name}
         </Text>
       </TouchableOpacity>
-    ))}
-  </ScrollView>
+    )}
+  />
 </View>
 
 <View className='mt-6'>
@@ -256,26 +287,22 @@ router.push({pathname:"/singlepage/Productcatagory",params:{ categoryId: id }})
     <Text className="text-xl font-bold text-gray-800">
       Top Product
     </Text>
-    <TouchableOpacity>
+    <TouchableOpacity onPress={() => router.push("/(tab)/category")}>
       <Text className="text-base font-medium text-primary-500">View All</Text>
     </TouchableOpacity>
   </View>
 
- <ScrollView 
-    horizontal 
+  <FlatList
+    horizontal
+    data={allproduct}
+    keyExtractor={(item, index) => String(item.id || index)}
     showsHorizontalScrollIndicator={false}
-    className="pl-5"
-    contentContainerStyle={{paddingRight: 20}}
-  >
-
-
-{allproduct?.map((item,index)=>(
-  <ProductCard product={item} key={index} wid="w-44"/>
-))}
-
-
-
-  </ScrollView>
+    nestedScrollEnabled
+    contentContainerStyle={{ paddingLeft: 20, paddingRight: 20 }}
+    renderItem={({ item }) => (
+      <ProductCard product={item} wid="w-44" />
+    )}
+  />
 
   <View>
 

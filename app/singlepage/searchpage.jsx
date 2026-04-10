@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import axios from 'axios'
-import { baseurl, imgurl } from '../Components/allapi'
+import { baseurl, imgurl } from '../../allapi'
 import { useRouter } from 'expo-router'
 
 

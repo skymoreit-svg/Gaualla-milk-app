@@ -1,9 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image, ScrollView, Text, TouchableOpacity, View, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from "axios";
-import { baseurl, imgurl } from '../Components/allapi';
+import { baseurl, imgurl } from '../../allapi';
 import { useEffect, useState } from 'react';
 import ProductCard from '../Components/ProductCard';
 
@@ -13,8 +13,10 @@ const contentWidth = width * 0.8;
 
 export default function CategoriesScreen() {
   const router = useRouter();
+  const { category } = useLocalSearchParams();
   const [cat, setCat] = useState([]);
   const [allproduct, setAllproduct] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   const fetchCategory = async () => {
     try {
@@ -42,11 +44,25 @@ export default function CategoriesScreen() {
 
   useEffect(() => {
     fetchCategory();
-    handelcatagypress();
   }, []);
 
+  useEffect(() => {
+    const initialCategory = typeof category === "string" && category.trim()
+      ? category
+      : "all";
+    setSelectedCategory(initialCategory);
+    handelcatagypress(initialCategory);
+  }, [category]);
+
+  const onCategoryPress = (categoryName) => {
+    const nextCategory = categoryName || "all";
+    setSelectedCategory(nextCategory);
+    handelcatagypress(nextCategory);
+    router.setParams({ category: nextCategory });
+  };
+
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-gray-50" edges={['top', 'left', 'right']}>
       {/* Header */}
       <View className="flex-row justify-between items-center px-5 py-4 bg-white border-b border-gray-200">
         <Text className="text-2xl font-bold text-gray-800">Products</Text>
@@ -67,8 +83,10 @@ export default function CategoriesScreen() {
             {cat?.map((item) => (
               <TouchableOpacity
                 key={item.id}
-                onPress={() => handelcatagypress(item.name)}
-                className="bg-white rounded-lg shadow-sm mb-3 overflow-hidden border border-gray-200"
+                onPress={() => onCategoryPress(item.name)}
+                className={`rounded-lg shadow-sm mb-3 overflow-hidden border ${
+                  selectedCategory === item.name ? "border-green-600 bg-green-50" : "border-gray-200 bg-white"
+                }`}
                 activeOpacity={0.8}
               >
                 <View className="relative">

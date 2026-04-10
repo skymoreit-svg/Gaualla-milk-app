@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "813133871268",
+    "project_id": "gaualla",
+    "storage_bucket": "gaualla.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:813133871268:android:8286464a0e2b5361064e31",
+        "android_client_info": {
+          "package_name": "com.gauallamilk.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6ZF9z-E5U2pbicyYry0nqzlixDWV_vys"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

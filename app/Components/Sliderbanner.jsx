@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Image, StyleSheet, Dimensions, TouchableOpacity, Animated } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
-import { baseurl, imgurl } from './allapi';
+import { baseurl, imgurl } from '../../allapi';
 import axios from 'axios';
 
 

@@ -22,6 +22,18 @@ const Help = () => {
   const router = useRouter();
   const [expandedSections, setExpandedSections] = useState({});
 
+  const handleGoBack = () => {
+    const canGoBack = router.canGoBack();
+    console.log("[BackButton] help pressed", { canGoBack });
+    if (router.canGoBack()) {
+      console.log("[BackButton] help -> router.back()");
+      router.back();
+      return;
+    }
+    console.log("[BackButton] help -> fallback /(tab)/profile");
+    router.replace("/(tab)/profile");
+  };
+
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
       ...prev,
@@ -145,8 +157,12 @@ const Help = () => {
       {/* Header */}
       <View className="bg-white px-5 py-4 border-b border-gray-200">
         <View className="flex-row items-center">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <ArrowLeft size={24} color="#374151" />
+          <TouchableOpacity
+            onPress={handleGoBack}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            className="mr-4 p-2 rounded-lg"
+          >
+            <ArrowLeft pointerEvents="none" size={24} color="#374151" />
           </TouchableOpacity>
           <View className="flex-row items-center">
             <HelpCircle size={22} color="#3b82f6" />

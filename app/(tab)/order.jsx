@@ -4,7 +4,7 @@ import { Text, View, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { useSelector } from 'react-redux';
 import * as SecureStore from "expo-secure-store";
 import axios from 'axios';
-import { baseurl, imgurl } from '../Components/allapi';
+import { baseurl, imgurl } from '../../allapi';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Order() {
@@ -99,7 +99,7 @@ export default function Order() {
     );
   }
 
-  return ( <SafeAreaView className="flex-1 bg-gray-100">
+  return ( <SafeAreaView className="flex-1 bg-gray-100" edges={['top', 'left', 'right']}>
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ padding: 16 }}

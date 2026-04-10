@@ -20,7 +20,7 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import Carousel from "react-native-reanimated-carousel";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
-import { baseurl, imgurl } from "../Components/allapi";
+import { baseurl, imgurl } from "../../allapi";
 import ProductCard from "../Components/ProductCard";
 
 const { width } = Dimensions.get("window");
@@ -106,7 +106,12 @@ export default function ProductShow() {
   };
 
   const handelAddtoCart = async () => {
-    const token = await SecureStore.getItemAsync("authToken")
+    const token = await SecureStore.getItemAsync("authToken");
+    if (!token) {
+      Toast.show({ type: 'info', text1: 'Please login', text2: 'Login to add items to cart', position: 'top', visibilityTime: 2000 });
+      router.push('/singlepage/login');
+      return;
+    }
     const response = await axios.post(`${baseurl}/cart/addtocart`, { product_id: allProduct?.id, price: newPrice }, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -115,7 +120,7 @@ export default function ProductShow() {
     const data = await response.data;
     if (data.success) {
       Toast.show({
-        type: 'success', // success | error | info
+        type: 'success',
         text1: 'Cart Updated!',
         text2: data.message,
         position: 'top',
@@ -125,7 +130,7 @@ export default function ProductShow() {
     }
     else {
       Toast.show({
-        type: 'error', // success | error | info
+        type: 'error',
         text1: 'ERROR!',
         text2: data.message,
         position: 'top',
@@ -147,7 +152,7 @@ export default function ProductShow() {
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-3 bg-white shadow-sm">
         <TouchableOpacity onPress={() => router.back()}>
-          <AntDesign name="arrowleft" size={24} color="#111827" />
+          <AntDesign name="left" size={24} color="#111827" />
         </TouchableOpacity>
         <Text className="text-lg font-semibold text-gray-900">
           Product Details
@@ -324,7 +329,7 @@ export default function ProductShow() {
         <View className='mt-6'>
           <View className="flex-row items-center justify-between mb-4">
             <Text className="text-xl font-bold text-gray-900">Related Products</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("/(tab)/category")}>
               <Text className="text-green-600">See all</Text>
             </TouchableOpacity>
           </View>

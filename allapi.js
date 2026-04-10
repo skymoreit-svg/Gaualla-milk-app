@@ -26,12 +26,12 @@ import { Platform } from 'react-native';
 
 // Your computer's local IP address (found via ipconfig)
 // Replace this with your actual IP if it changes
-const LOCAL_IP = "192.168.1.3"; // Update this if your IP changes
+const LOCAL_IP = "192.168.1.2"; // Update this if your IP changes
 
 // Determine the correct base URL based on platform
 const getBaseUrl = () => {
   // For production, uncomment the line below and comment out local development
-  // return "https://api.gauallamilk.com/api/user";
+  return "https://api.gauallamilk.com/api/user";
   
   // Local development URLs
   if (Platform.OS === 'android') {
@@ -53,7 +53,7 @@ const getBaseUrl = () => {
 
 const getImgUrl = () => {
   // For production, uncomment the line below and comment out local development
-  // return "https://api.gauallamilk.com/uploads";
+  return "https://api.gauallamilk.com/uploads";
   
   // Local development URLs
   if (Platform.OS === 'android') {
@@ -70,6 +70,7 @@ const getImgUrl = () => {
 // Export the URLs
 export const baseurl = getBaseUrl();
 export const imgurl = getImgUrl();
+export const imageurl = imgurl;
 
 // ============================================
 // Manual Configuration (if auto-detection doesn't work)

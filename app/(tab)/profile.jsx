@@ -1,10 +1,12 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { View, Text, TouchableOpacity, Alert, ScrollView, Image } from "react-native";
 import * as SecureStore from "expo-secure-store";
-import * as Updates from "expo-updates";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "expo-router";
+import axios from "axios";
+import { clearUser } from "../store/userSlice";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { baseurl } from "../../allapi";
 import {
   User,
   Mail,
@@ -14,18 +16,17 @@ import {
   Info,
   LogOut,
   MapPin,
-  CreditCard,
   Heart,
   Shield,
   Bell,
   HelpCircle,
-  Star,
-  Gift,
   ChevronRight,
+  Trash2,
 } from "lucide-react-native";
 
 export default function Profile() {
   const { isUser, info } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -39,8 +40,7 @@ export default function Profile() {
           onPress: async () => {
             try {
               await SecureStore.deleteItemAsync("authToken");
-              Alert.alert("Logged out", "Your session has been cleared.");
-              await Updates.reloadAsync();
+              dispatch(clearUser());
             } catch (error) {
               Alert.alert("Error", "Failed to clear token");
             }
@@ -50,11 +50,61 @@ export default function Profile() {
     );
   };
 
-  useEffect(() => {
-    if (!isUser) {
-      router.push("/singlepage/login");
-    }
-  }, [isUser]);
+  const handleDeleteAccount = async () => {
+    Alert.alert(
+      "Delete Account",
+      "This will permanently delete your account and personal data. This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const token = await SecureStore.getItemAsync("authToken");
+              if (!token) {
+                Alert.alert("Session Expired", "Please login again.");
+                return;
+              }
+
+              const response = await axios.delete(`${baseurl}/delete-account`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+
+              if (response?.data?.success) {
+                await SecureStore.deleteItemAsync("authToken");
+                dispatch(clearUser());
+                Alert.alert("Account Deleted", "Your account has been deleted successfully.");
+              } else {
+                Alert.alert("Error", response?.data?.message || "Failed to delete account.");
+              }
+            } catch (error) {
+              console.log("Delete account error:", error);
+              Alert.alert("Error", "Failed to delete account. Please try again.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  if (!isUser) {
+    return (
+      <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center px-6" edges={['top', 'left', 'right']}>
+        <User size={64} color="#9ca3af" />
+        <Text className="text-xl font-bold text-gray-800 mt-4">You're not logged in</Text>
+        <Text className="text-gray-500 mt-2 text-center">
+          Please log in to view your profile and manage your account.
+        </Text>
+        <TouchableOpacity
+          onPress={() => router.push("/singlepage/login")}
+          className="mt-6 bg-green-600 px-8 py-3 rounded-xl"
+        >
+          <Text className="text-white font-bold text-lg">Login</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
 
   const MenuItem = ({ icon: Icon, label, onPress, showChevron = true }) => (
     <TouchableOpacity
@@ -72,7 +122,7 @@ export default function Profile() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-gray-50" edges={['top', 'left', 'right']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View className="bg-white p-5 shadow-sm">
@@ -97,7 +147,7 @@ export default function Profile() {
               </Text>
             </View>
             <TouchableOpacity 
-              onPress={() => router.push("/profile/edit")}
+              onPress={() => router.push("/singlepage/edit-profile")}
               className="bg-blue-50 p-2 rounded-lg"
             >
               <Text className="text-blue-600 font-medium">Edit</Text>
@@ -117,13 +167,8 @@ export default function Profile() {
           />
           <MenuItem
             icon={MapPin}
-            label="Addresses"
+            label="Address"
             onPress={() => router.push("/singlepage/addresses")}
-          />
-          <MenuItem
-            icon={CreditCard}
-            label="Payment Methods"
-            onPress={() => router.push("/singlepage/payments")}
           />
         </View>
 
@@ -140,12 +185,7 @@ export default function Profile() {
           <MenuItem
             icon={Heart}
             label="Wishlist"
-            onPress={() => router.push("/wishlist")}
-          />
-          <MenuItem
-            icon={Star}
-            label="Reviews"
-            onPress={() => router.push("/reviews")}
+            onPress={() => router.push("/singlepage/wishlist")}
           />
         </View>
 
@@ -176,34 +216,16 @@ export default function Profile() {
           <Text className="text-gray-500 text-sm font-medium px-5 py-2 bg-gray-50">
             APP SETTINGS
           </Text>
-          <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-100 bg-white">
-            <View className="flex-row items-center space-x-4">
-              <View className="bg-gray-100 p-2 rounded-lg">
-                <Bell size={20} color="#4b5563" />
-              </View>
-              <Text className="text-gray-800 text-base font-medium">Notifications</Text>
-            </View>
-            <Text className="text-gray-500">Enabled</Text>
-          </View>
+          <MenuItem
+            icon={Bell}
+            label="Notifications"
+            onPress={() => router.push("/singlepage/notifications")}
+          />
           <MenuItem
             icon={Info}
             label="About Us"
             onPress={() => router.push("/singlepage/about")}
           />
-        </View>
-
-        {/* Rewards Section */}
-        <View className="m-4 p-5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
-          <View className="flex-row items-center justify-between">
-            <View>
-              <Text className="text-white text-lg font-bold">Rewards Program</Text>
-              <Text className="text-white text-sm mt-1">You have 245 points</Text>
-            </View>
-            <Gift size={28} color="white" />
-          </View>
-          <TouchableOpacity className="bg-white mt-4 py-2 rounded-full">
-            <Text className="text-purple-600 text-center font-bold">View Rewards</Text>
-          </TouchableOpacity>
         </View>
 
         {/* App Version */}
@@ -213,6 +235,14 @@ export default function Profile() {
 
         {/* Logout Button */}
         <View className="px-6 mt-2 mb-10">
+          <TouchableOpacity
+            onPress={handleDeleteAccount}
+            className="bg-red-100 py-4 rounded-xl flex-row items-center justify-center border border-red-200 mb-3"
+          >
+            <Trash2 size={20} color="#dc2626" />
+            <Text className="text-red-600 font-bold text-base ml-2">Delete Account</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             onPress={handleLogout}
             className="bg-red-500 py-4 rounded-xl flex-row items-center justify-center shadow-md"

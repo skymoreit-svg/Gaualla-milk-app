@@ -18,8 +18,10 @@ import { useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
 import { getUser } from "../store/userSlice";
 
-export default function Login() {
+export default function Signup() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -34,23 +36,28 @@ export default function Login() {
     return () => { showSub.remove(); hideSub.remove(); };
   }, []);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Missing Fields", "Please enter email and password.");
+  const handleSignup = async () => {
+    if (!name || !email || !phone || !password) {
+      Alert.alert("Missing Fields", "Please fill in all fields.");
       return;
     }
     setLoading(true);
     try {
-      const res = await axios.post(`${baseurl}/login`, { email, password });
+      const res = await axios.post(`${baseurl}/signup`, {
+        name,
+        email,
+        phone,
+        password,
+      });
       if (res.data.success && res.data.token) {
         await SecureStore.setItemAsync("authToken", res.data.token);
         await dispatch(getUser());
         router.replace("/(tab)");
       } else {
-        Alert.alert("Login Failed", res.data.message || "Something went wrong");
+        Alert.alert("Signup Failed", res.data.message || "Something went wrong");
       }
     } catch (error) {
-      const msg = error.response?.data?.message || "Login failed. Please try again.";
+      const msg = error.response?.data?.message || "Signup failed. Please try again.";
       Alert.alert("Error", msg);
     } finally {
       setLoading(false);
@@ -76,12 +83,16 @@ export default function Login() {
           className="w-24 h-24 mb-6"
         />
 
-        <Text className="text-3xl font-bold text-green-700 mb-2">
-          Dairy Fresh
-        </Text>
-        <Text className="text-gray-500 mb-8">
-          Login to manage your dairy products
-        </Text>
+        <Text className="text-3xl font-bold text-green-700 mb-2">Create Account</Text>
+        <Text className="text-gray-500 mb-8">Sign up to get started</Text>
+
+        <TextInput
+          placeholder="Full Name"
+          placeholderTextColor="#6b7280"
+          value={name}
+          onChangeText={setName}
+          className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 mb-4 text-gray-800"
+        />
 
         <TextInput
           placeholder="Email"
@@ -90,6 +101,15 @@ export default function Login() {
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
+          className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 mb-4 text-gray-800"
+        />
+
+        <TextInput
+          placeholder="Phone Number"
+          placeholderTextColor="#6b7280"
+          value={phone}
+          onChangeText={setPhone}
+          keyboardType="phone-pad"
           className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 mb-4 text-gray-800"
         />
 
@@ -113,19 +133,19 @@ export default function Login() {
         </View>
 
         <TouchableOpacity
-          onPress={handleLogin}
+          onPress={handleSignup}
           disabled={loading}
           className={`w-full rounded-xl py-3 ${loading ? "bg-green-400" : "bg-green-600"}`}
         >
           <Text className="text-center text-white font-bold text-lg">
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Creating Account..." : "Sign Up"}
           </Text>
         </TouchableOpacity>
 
         <View className="flex-row justify-center w-full mt-4 mb-8">
-          <Text className="text-gray-500">Don't have an account? </Text>
-          <TouchableOpacity onPress={() => router.push("/singlepage/signup")}>
-            <Text className="text-green-600 font-semibold">Sign Up</Text>
+          <Text className="text-gray-500">Already have an account? </Text>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text className="text-green-600 font-semibold">Login</Text>
           </TouchableOpacity>
         </View>
       </Pressable>

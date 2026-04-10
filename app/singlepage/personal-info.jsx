@@ -1,10 +1,12 @@
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { useRouter } from 'expo-router';
 import { User, Mail, Phone, Calendar, Edit3, Shield } from 'lucide-react-native';
 
 const PersonalInfo = () => {
   const { isUser, info } = useSelector((state) => state.user);
+  const router = useRouter();
   const user = info?.user || {};
 
   // Format the date
@@ -31,6 +33,12 @@ const PersonalInfo = () => {
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <Text style={styles.backText}>←</Text>
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Personal Information</Text>
       </View>
 
@@ -42,7 +50,10 @@ const PersonalInfo = () => {
               {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
             </Text>
           </View>
-          <TouchableOpacity style={styles.editButton}>
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => router.push('/singlepage/edit-profile')}
+          >
             <Edit3 size={18} color="#6366f1" />
           </TouchableOpacity>
         </View>
@@ -111,25 +122,16 @@ const PersonalInfo = () => {
         <Text style={styles.sectionTitle}>Security</Text>
         
         <View style={styles.infoCard}>
-          <TouchableOpacity style={[styles.infoItem, styles.clickableItem]}>
+          <TouchableOpacity
+            style={[styles.infoItem, styles.clickableItem]}
+            onPress={() => router.push('/singlepage/change-password')}
+          >
             <View style={styles.infoIcon}>
               <Shield size={20} color="#10b981" />
             </View>
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Change Password</Text>
               <Text style={styles.infoHint}>Update your password regularly</Text>
-            </View>
-          </TouchableOpacity>
-
-          <View style={styles.divider} />
-
-          <TouchableOpacity style={[styles.infoItem, styles.clickableItem]}>
-            <View style={styles.infoIcon}>
-              <Shield size={20} color="#ef4444" />
-            </View>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Two-Factor Authentication</Text>
-              <Text style={styles.infoHint}>Add an extra layer of security</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -154,12 +156,21 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 60,
     backgroundColor: '#ffffff',
+    flexDirection: 'row',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 12,
+  },
+  backText: {
+    fontSize: 22,
+    color: '#1e293b',
   },
   headerTitle: {
     fontSize: 20,

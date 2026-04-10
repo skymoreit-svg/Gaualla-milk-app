@@ -1,9 +1,9 @@
-import { View, Text, ScrollView, Image, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Image, ActivityIndicator, TouchableOpacity, Linking } from 'react-native';
 import React, { useEffect, useState, useCallback } from 'react';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
-import { baseurl, imgurl } from '../Components/allapi';
+import { baseurl, imgurl } from '../../allapi';
 import * as SecureStore from "expo-secure-store";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import { 
@@ -16,11 +16,13 @@ import {
   Truck,
   Check,
   User,
-  ChevronRight
+  ChevronRight,
+  Phone
 } from 'lucide-react-native';
 
 const OrderDetails = () => {
   const { id } = useLocalSearchParams();
+  const router = useRouter();
   const [order, setOrder] = useState(null);
   const [tracking, setTracking] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -417,10 +419,23 @@ const OrderDetails = () => {
           <Text className="text-gray-600 text-sm mb-4">
             If you have any questions about your order, please contact our customer support team.
           </Text>
-          <View className="flex-row justify-between items-center py-3 border-t border-gray-100">
-            <Text className="text-blue-600 font-medium">Contact Support</Text>
+          <TouchableOpacity
+            onPress={() => Linking.openURL('tel:+91-8378-000052')}
+            className="flex-row items-center py-3 border-t border-gray-100"
+            activeOpacity={0.7}
+          >
+            <Phone size={18} color="#16a34a" />
+            <Text className="text-green-600 font-medium ml-2 flex-1">Call Support</Text>
+            <Text className="text-gray-400 text-sm">+91-8378-000052</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/singlepage/help')}
+            className="flex-row justify-between items-center py-3 border-t border-gray-100"
+            activeOpacity={0.7}
+          >
+            <Text className="text-blue-600 font-medium">Help & FAQs</Text>
             <ChevronRight size={18} color="#3b82f6" />
-          </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
