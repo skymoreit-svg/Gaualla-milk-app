@@ -230,7 +230,7 @@ export default function Profile() {
 
         {/* App Version */}
         <View className="items-center my-6">
-          <Text className="text-gray-400">App Version 1.2.3</Text>
+          <Text className="text-gray-400">App Version 1.0</Text>
         </View>
 
         {/* Logout Button */}
