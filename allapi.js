@@ -1,70 +1,61 @@
 
 // ============================================
-// NOTE: This file is NOT used by the app
-// The app uses: app/Components/allapi.js
+// API Configuration - Local & Production
 // ============================================
-// This file is kept for reference only
-// All imports use: import { baseurl } from '../Components/allapi'
+// NOTE: This file is imported across the app as '../../allapi'
+// Backend runs on port 8000 (check gauallabackend/app.js)
 
-// export const baseurl= "https://api.gauallamilk.com/api/user";
-// export const imgurl= "https://api.gauallamilk.com/uploads";
+// --------------------------------------------
+// CHOOSE YOUR DEVELOPMENT MODE (Set ONE to true)
+// --------------------------------------------
+const DEV_MODE = {
+  // Mode 1: Real Android Device via USB (Requires running: adb reverse tcp:8000 tcp:8000)
+  ADB_REVERSE: true,
 
-// For local development - use your computer's IP for physical devices
-// export const baseurl= "http://192.168.1.11:8000/api/user";
-// export const imgurl= "http://192.168.1.11:8000/uploads";
+  // Mode 2: Real Android Device over Wi-Fi (Requires both PC & phone on same Wi-Fi)
+  LAN_WIFI: false,
 
+  // Mode 3: Android Emulator (Android Studio virtual device)
+  EMULATOR: false,
+};
 
+// Your computer's local Wi-Fi IP address (found via 'ipconfig' in cmd -> IPv4 Address)
+// Only used if DEV_MODE.LAN_WIFI is true
+const LOCAL_LAN_IP = "192.168.1.2";
 
-
-
-// ============================================
-// API Configuration - Local Development
-// ============================================
-// Backend runs on port 8000 (check gauallabackend-main/app.js)
-
-import { Platform } from 'react-native';
-
-// Your computer's local IP address (found via ipconfig)
-// Replace this with your actual IP if it changes
-const LOCAL_IP = "192.168.1.2"; // Update this if your IP changes
-
-// Determine the correct base URL based on platform
+// Determine the correct base URL based on platform & dev mode
 const getBaseUrl = () => {
   // For production, uncomment the line below and comment out local development
   return "https://api.gauallamilk.com/api/user";
-  
-  // Local development URLs
-  if (Platform.OS === 'android') {
-    // Check if running on emulator (__DEV__) or physical device
-    // For Android Emulator: use 10.0.2.2
-    // For Physical Android Device: use your computer's local IP
-    // You can manually set this by uncommenting the line below and using your IP
-    return `http://${LOCAL_IP}:8000/api/user`; // Physical device
-    // return "http://10.0.2.2:8000/api/user"; // Uncomment for Android Emulator
-  } else if (Platform.OS === 'ios') {
-    // iOS Simulator can use localhost, but physical device needs IP
-    return `http://${LOCAL_IP}:8000/api/user`; // Works for both simulator and device
-    // return "http://localhost:8000/api/user"; // Uncomment for iOS Simulator only
-  } else {
-    // Web or other platforms
-    return "http://localhost:8000/api/user";
-  }
+
+  // if (DEV_MODE.ADB_REVERSE) {
+  //   return "http://localhost:8000/api/user";
+  // } else if (DEV_MODE.LAN_WIFI) {
+  //   return `http://${LOCAL_LAN_IP}:8000/api/user`;
+  // } else if (DEV_MODE.EMULATOR) {
+  //   return "http://10.0.2.2:8000/api/user";
+  // } else {
+  //   // Production
+  //   return "https://api.gauallamilk.com/api/user";
+  // }
+
 };
 
 const getImgUrl = () => {
   // For production, uncomment the line below and comment out local development
   return "https://api.gauallamilk.com/uploads";
-  
-  // Local development URLs
-  if (Platform.OS === 'android') {
-    return `http://${LOCAL_IP}:8000/uploads`; // Physical device
-    // return "http://10.0.2.2:8000/uploads"; // Uncomment for Android Emulator
-  } else if (Platform.OS === 'ios') {
-    return `http://${LOCAL_IP}:8000/uploads`; // Works for both simulator and device
-    // return "http://localhost:8000/uploads"; // Uncomment for iOS Simulator only
-  } else {
-    return "http://localhost:8000/uploads";
-  }
+
+  // if (DEV_MODE.ADB_REVERSE) {
+  //   return "http://localhost:8000/uploads";
+  // } else if (DEV_MODE.LAN_WIFI) {
+  //   return `http://${LOCAL_LAN_IP}:8000/uploads`;
+  // } else if (DEV_MODE.EMULATOR) {
+  //   return "http://10.0.2.2:8000/uploads";
+  // } else {
+  //   // Production
+  //   return "https://api.gauallamilk.com/uploads";
+  // }
+
 };
 
 // Export the URLs

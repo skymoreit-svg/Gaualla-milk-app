@@ -13,8 +13,28 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 2. Start the app
 
    ```bash
-   npx expo start
+   npm run start:tunnel
+
+   npx expo start --dev-client --localhost
+
+   ngrok http 8081
+
+   adb reverse tcp:5001 tcp:5001
    ```
+
+   ```bash
+   eas build -p android --profile preview
+
+   
+   ```
+
+If you want to use a development build on a physical Android device, start Metro with the tunnel script above, then open the installed dev build on the phone. This avoids LAN connection issues when the device cannot reach the computer directly.
+
+If you want the default local mode instead, use:
+
+```bash
+npx expo start
+```
 
 In the output, you'll find options to open the app in a
 

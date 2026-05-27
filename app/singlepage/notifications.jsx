@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, StyleSheet } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -6,13 +6,14 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { baseurl } from "../../allapi";
 import { ArrowLeft, Package, Truck, CheckCircle, Bell, ShoppingCart } from "lucide-react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const ICON_MAP = {
-  new_order: { icon: ShoppingCart, color: "#16a34a", bg: "#f0fdf4" },
-  order_assigned: { icon: Truck, color: "#2563eb", bg: "#eff6ff" },
-  order_accepted: { icon: Package, color: "#d97706", bg: "#fffbeb" },
-  order_delivered: { icon: CheckCircle, color: "#16a34a", bg: "#f0fdf4" },
-  general: { icon: Bell, color: "#6b7280", bg: "#f9fafb" },
+  new_order: { icon: ShoppingCart, color: "#16a34a", bg: "#d1fae5" },
+  order_assigned: { icon: Truck, color: "#3b82f6", bg: "#dbeafe" },
+  order_accepted: { icon: Package, color: "#d97706", bg: "#fef3c7" },
+  order_delivered: { icon: CheckCircle, color: "#16a34a", bg: "#d1fae5" },
+  general: { icon: Bell, color: "#6d4c41", bg: "#fdf6f3" },
 };
 
 function timeAgo(dateString) {
@@ -34,15 +35,11 @@ export default function NotificationsScreen() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const handleGoBack = () => {
-    const canGoBack = router.canGoBack();
-    console.log("[BackButton] notifications pressed", { canGoBack });
     if (router.canGoBack()) {
-      console.log("[BackButton] notifications -> router.back()");
       router.back();
-      return;
+    } else {
+      router.replace("/(tab)/profile");
     }
-    console.log("[BackButton] notifications -> fallback /(tab)/profile");
-    router.replace("/(tab)/profile");
   };
 
   const fetchNotifications = async () => {
@@ -115,66 +112,69 @@ export default function NotificationsScreen() {
     return (
       <TouchableOpacity
         onPress={() => handleNotificationPress(item)}
-        activeOpacity={0.7}
-        className={`flex-row px-5 py-4 border-b border-gray-100 ${isUnread ? "bg-blue-50/50" : "bg-white"}`}
+        activeOpacity={0.75}
+        style={[
+          styles.itemContainer,
+          { backgroundColor: isUnread ? '#fffdfb' : '#fff' }
+        ]}
       >
-        <View
-          className="w-10 h-10 rounded-full items-center justify-center mr-3 mt-0.5"
-          style={{ backgroundColor: config.bg }}
-        >
-          <IconComp size={20} color={config.color} />
+        <View style={[styles.iconWrapper, { backgroundColor: config.bg }]}>
+          <IconComp size={18} color={config.color} />
         </View>
-        <View className="flex-1">
-          <View className="flex-row items-center justify-between">
-            <Text className={`text-base ${isUnread ? "font-bold text-gray-900" : "font-semibold text-gray-800"}`} numberOfLines={1}>
+        <View style={styles.textContainer}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text style={[styles.itemTitle, isUnread ? styles.itemTitleUnread : styles.itemTitleRead]} numberOfLines={1}>
               {item.title}
             </Text>
-            {isUnread && <View className="w-2 h-2 rounded-full bg-blue-500 ml-2" />}
+            {isUnread && <View style={styles.unreadDot} />}
           </View>
           {item.body ? (
-            <Text className="text-sm text-gray-600 mt-1" numberOfLines={2}>{item.body}</Text>
+            <Text style={styles.itemBody} numberOfLines={2}>{item.body}</Text>
           ) : null}
-          <Text className="text-xs text-gray-400 mt-1.5">{timeAgo(item.created_at)}</Text>
+          <Text style={styles.timeText}>{timeAgo(item.created_at)}</Text>
         </View>
       </TouchableOpacity>
     );
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-200 bg-white">
-        <View className="flex-row items-center">
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity
             onPress={handleGoBack}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-            className="mr-4 p-2 rounded-lg"
+            style={styles.backBtn}
           >
-            <ArrowLeft pointerEvents="none" size={24} color="#374151" />
+            <ArrowLeft size={20} color="#3e2723" />
           </TouchableOpacity>
-          <Text className="text-xl font-bold text-gray-900">Notifications</Text>
+          <Text style={styles.headerTitle}>Notifications</Text>
           {unreadCount > 0 && (
-            <View className="bg-red-500 rounded-full px-2 py-0.5 ml-2">
-              <Text className="text-white text-xs font-bold">{unreadCount}</Text>
+            <View style={styles.unreadBadge}>
+              <Text style={styles.unreadBadgeText}>{unreadCount}</Text>
             </View>
           )}
         </View>
         {unreadCount > 0 && (
-          <TouchableOpacity onPress={markAllRead}>
-            <Text className="text-blue-600 text-sm font-medium">Mark all read</Text>
+          <TouchableOpacity onPress={markAllRead} activeOpacity={0.7}>
+            <Text style={styles.markReadBtn}>Mark all read</Text>
           </TouchableOpacity>
         )}
       </View>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#942e29" />
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#6d4c41" />
         </View>
       ) : notifications.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-10">
-          <Bell size={64} color="#d1d5db" />
-          <Text className="text-gray-400 text-lg font-medium mt-4">No notifications yet</Text>
-          <Text className="text-gray-300 text-sm text-center mt-2">
-            You'll receive updates about your orders here.
+        <View style={styles.centerContainer}>
+          <View style={styles.emptyIconContainer}>
+            <Bell size={36} color="#a1887f" />
+          </View>
+          <Text style={styles.emptyTitle}>All caught up!</Text>
+          <Text style={styles.emptySubtitle}>
+            We will notify you here when subscription orders are dispatched or delivered.
           </Text>
         </View>
       ) : (
@@ -182,11 +182,147 @@ export default function NotificationsScreen() {
           data={notifications}
           keyExtractor={(item) => String(item.id)}
           renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#942e29"]} tintColor="#942e29" />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#3e2723"]} tintColor="#3e2723" />
           }
         />
       )}
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F6EFC8',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderColor: '#f5ede8',
+    elevation: 2,
+    shadowColor: '#3e2723',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#fdf6f3',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#f0e0d8',
+    marginRight: 12,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#1f2937',
+    letterSpacing: -0.5,
+  },
+  unreadBadge: {
+    backgroundColor: '#ef4444',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    marginLeft: 8,
+  },
+  unreadBadgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  markReadBtn: {
+    color: '#3b82f6',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  centerContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+  },
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#fdf6f3',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#f0e0d8',
+  },
+  emptyTitle: {
+    color: '#3e2723',
+    fontSize: 16,
+    fontWeight: '800',
+    marginBottom: 6,
+  },
+  emptySubtitle: {
+    color: '#6d4c41',
+    fontSize: 12,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f5ede8',
+  },
+  iconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    marginTop: 2,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  itemTitle: {
+    fontSize: 14,
+    flex: 1,
+  },
+  itemTitleUnread: {
+    fontWeight: '800',
+    color: '#1f2937',
+  },
+  itemTitleRead: {
+    fontWeight: '600',
+    color: '#4b5563',
+  },
+  unreadDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#ef4444',
+    marginLeft: 8,
+  },
+  itemBody: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 3,
+    lineHeight: 17,
+  },
+  timeText: {
+    fontSize: 10,
+    color: '#9ca3af',
+    marginTop: 6,
+    fontWeight: '600',
+  },
+});

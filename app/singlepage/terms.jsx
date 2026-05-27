@@ -25,7 +25,7 @@ const Terms = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1" style={{ backgroundColor: '#F6EFC8' }}>
       {/* Header */}
       <View className="flex-row items-center px-5 py-4 border-b border-gray-200">
         <TouchableOpacity
@@ -33,10 +33,10 @@ const Terms = () => {
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           className="mr-4 p-2 rounded-lg"
         >
-          <ArrowLeft pointerEvents="none" size={24} color="#374151" />
+          <ArrowLeft size={24} color="#374151" />
         </TouchableOpacity>
         <View className="flex-row items-center">
-          <FileText size={22} color="#3b82f6" />
+          <FileText size={22} color="#6d4c41" />
           <Text className="text-xl font-bold ml-2 text-gray-900">Terms & Conditions</Text>
         </View>
       </View>
@@ -172,7 +172,7 @@ const Terms = () => {
           </Text>
         </View>
         <TouchableOpacity onPress={openEmail}>
-          <Text className="text-blue-500 mb-8">Gauallamilkpvtltd@gmail.com</Text>
+          <Text className="text-primary-600 mb-8">Gauallamilkpvtltd@gmail.com</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

@@ -1,152 +1,151 @@
-import { View, Text, ScrollView, Image } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Leaf, Heart, Shield, Clock, Award, } from 'lucide-react-native';
+import { ArrowLeft, Leaf, Heart, Shield, Clock, Award } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { TouchableOpacity } from 'react-native';
 
-const about = () => {
+const AboutPage = () => {
   const router = useRouter();
 
   const handleGoBack = () => {
-    const canGoBack = router.canGoBack();
-    console.log("[BackButton] about pressed", { canGoBack });
     if (router.canGoBack()) {
-      console.log("[BackButton] about -> router.back()");
       router.back();
-      return;
+    } else {
+      router.replace("/(tab)/profile");
     }
-    console.log("[BackButton] about -> fallback /(tab)/profile");
-    router.replace("/(tab)/profile");
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F6EFC8' }} edges={['top', 'left', 'right']}>
       {/* Header */}
-      <View className="flex-row items-center px-5 py-4 border-b border-gray-200">
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#f5ede8', shadowColor: '#3e2723', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 }}>
         <TouchableOpacity
           onPress={handleGoBack}
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          className="mr-4 p-2 rounded-lg"
+          style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#fdf6f3', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#f0e0d8', marginRight: 12 }}
         >
-          <ArrowLeft pointerEvents="none" size={24} color="#374151" />
+          <ArrowLeft size={20} color="#3e2723" />
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-gray-900">About Us</Text>
+        <Text style={{ fontSize: 18, fontWeight: '900', color: '#1f2937', letterSpacing: -0.5 }}>About Us</Text>
       </View>
 
-     <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-       
-        <View className="p-5 bg-green-50">
-          
-          <Text className="text-2xl font-bold text-center text-gray-900 mb-2">
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+        {/* Hero Section */}
+        <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#f5ede8', paddingVertical: 28, paddingHorizontal: 20, alignItems: 'center' }}>
+          <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#fdf6f3', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#f0e0d8', marginBottom: 16 }}>
+            <Award size={32} color="#6d4c41" />
+          </View>
+          <Text style={{ fontSize: 22, fontWeight: '900', color: '#1f2937', textAlign: 'center', marginBottom: 8, lineHeight: 28 }}>
             Natural Taste From The Gaualla Farm!
           </Text>
-          <Text className="text-gray-700 text-center">
+          <Text style={{ fontSize: 13, color: '#6d4c41', textAlign: 'center', lineHeight: 20, maxWidth: 280 }}>
             Enjoy the authentic, creamy taste of A2 Desi Cow milk—pure, fresh, and naturally produced on our ethical Gaualla farms.
           </Text>
         </View>
 
-       
-        <View className="p-5">
-          <View className="flex-row flex-wrap justify-between">
-           
-            <View className="w-[48%] bg-white p-4 rounded-xl shadow-sm mb-4 items-center">
-              <View className="bg-blue-100 p-3 rounded-full mb-3">
-                <Award size={24} color="#3b82f6" />
+        {/* Core Pillars Grid */}
+        <View style={{ padding: 16 }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12 }}>
+            {/* Card 1 */}
+            <View style={{ width: '48%', backgroundColor: '#fff', borderRadius: 20, padding: 14, borderWidth: 1, borderColor: '#f5ede8', shadowColor: '#3e2723', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#e0f2fe', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+                <Award size={18} color="#0284c7" />
               </View>
-              <Text className="text-gray-900 font-bold text-center mb-2">Pure A2 Desi Cow Milk</Text>
-              <Text className="text-gray-600 text-xs text-center">
-                Wholesome, A2-certified milk sourced from indigenous cows raised ethically with love and care.
+              <Text style={{ fontSize: 13, fontWeight: '800', color: '#1f2937', marginBottom: 6 }}>Pure A2 Desi Milk</Text>
+              <Text style={{ fontSize: 11, color: '#6b7280', lineHeight: 15 }}>
+                Wholesome, A2-certified milk sourced from indigenous cows raised with love.
               </Text>
             </View>
 
-            
-            <View className="w-[48%] bg-white p-4 rounded-xl shadow-sm mb-4 items-center">
-              <View className="bg-red-100 p-3 rounded-full mb-3">
-                <Shield size={24} color="#dc2626" />
+            {/* Card 2 */}
+            <View style={{ width: '48%', backgroundColor: '#fff', borderRadius: 20, padding: 14, borderWidth: 1, borderColor: '#f5ede8', shadowColor: '#3e2723', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#fee2e2', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+                <Shield size={18} color="#dc2626" />
               </View>
-              <Text className="text-gray-900 font-bold text-center mb-2">Chemical & Antibiotic Free</Text>
-              <Text className="text-gray-600 text-xs text-center">
-                No adulteration, no antibiotics—just 100% natural, healthy milk for your family's well-being.
+              <Text style={{ fontSize: 13, fontWeight: '800', color: '#1f2937', marginBottom: 6 }}>Toxin & Adulteration Free</Text>
+              <Text style={{ fontSize: 11, color: '#6b7280', lineHeight: 15 }}>
+                No chemicals or synthetic antibiotics—just 100% natural, healthy milk.
               </Text>
             </View>
 
-            <View className="w-[48%] bg-white p-4 rounded-xl shadow-sm mb-4 items-center">
-              <View className="bg-green-100 p-3 rounded-full mb-3">
-                <Leaf size={24} color="#16a34a" />
+            {/* Card 3 */}
+            <View style={{ width: '48%', backgroundColor: '#fff', borderRadius: 20, padding: 14, borderWidth: 1, borderColor: '#f5ede8', shadowColor: '#3e2723', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#dcfce7', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+                <Leaf size={18} color="#16a34a" />
               </View>
-              <Text className="text-gray-900 font-bold text-center mb-2">Sustainable Farming Practices</Text>
-              <Text className="text-gray-600 text-xs text-center">
-                We use cow dung and urine for organic soil health and natural pest control, promoting sustainability.
+              <Text style={{ fontSize: 13, fontWeight: '800', color: '#1f2937', marginBottom: 6 }}>Sustainable Farming</Text>
+              <Text style={{ fontSize: 11, color: '#6b7280', lineHeight: 15 }}>
+                Organic soil health and natural pest control, promoting sustainability.
               </Text>
             </View>
 
-           
-            <View className="w-[48%] bg-white p-4 rounded-xl shadow-sm mb-4 items-center">
-              <View className="bg-amber-100 p-3 rounded-full mb-3">
-                <Clock size={24} color="#d97706" />
+            {/* Card 4 */}
+            <View style={{ width: '48%', backgroundColor: '#fff', borderRadius: 20, padding: 14, borderWidth: 1, borderColor: '#f5ede8', shadowColor: '#3e2723', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 6, elevation: 1 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#fef3c7', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+                <Clock size={18} color="#d97706" />
               </View>
-              <Text className="text-gray-900 font-bold text-center mb-2">Tradition & Freshness Focused</Text>
-              <Text className="text-gray-600 text-xs text-center">
-                Daily milk sourced traditionally with care, maintaining freshness and quality from farm to home.
+              <Text style={{ fontSize: 13, fontWeight: '800', color: '#1f2937', marginBottom: 6 }}>Tradition & Freshness</Text>
+              <Text style={{ fontSize: 11, color: '#6b7280', lineHeight: 15 }}>
+                Daily milk sourced traditionally, maintaining freshness from farm to home.
               </Text>
             </View>
           </View>
         </View>
 
-        <View className="p-5 bg-gray-50">
-          <Text className="text-xl font-bold text-center text-gray-900 mb-6">
+        {/* Commitment section */}
+        <View style={{ marginTop: 12, paddingHorizontal: 16 }}>
+          <Text style={{ fontSize: 12, fontWeight: '700', color: '#9ca3af', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>
             Our Commitment to Quality
           </Text>
 
-          <View className="space-y-5">
-          
-            <View className="flex-row items-start">
-              <View className="bg-blue-100 p-2 rounded-full mr-4">
-                <Award size={20} color="#3b82f6" />
+          <View style={{ backgroundColor: '#fff', borderRadius: 24, borderWidth: 1, borderColor: '#f5ede8', padding: 16, gap: 16 }}>
+            {/* Item 1 */}
+            <View style={{ flexDirection: 'row', alignItems: 'start' }}>
+              <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#e0f2fe', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+                <Award size={16} color="#0284c7" />
               </View>
-              <View className="flex-1">
-                <Text className="text-gray-900 font-bold mb-1">Certified A2 Milk</Text>
-                <Text className="text-gray-600">
-                  This milk is certified A2 and is sourced exclusively from indigenous Indian cow breeds raised with ethical care.
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#1f2937', marginBottom: 2 }}>Certified A2 Milk</Text>
+                <Text style={{ fontSize: 12, color: '#6b7280', lineHeight: 17 }}>
+                  Our milk is certified A2 and sourced exclusively from indigenous Indian cow breeds raised with ethical care.
                 </Text>
               </View>
             </View>
 
-        
-            <View className="flex-row items-start">
-              <View className="bg-red-100 p-2 rounded-full mr-4">
-                <Shield size={20} color="#dc2626" />
+            {/* Item 2 */}
+            <View style={{ flexDirection: 'row', alignItems: 'start' }}>
+              <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#fee2e2', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+                <Shield size={16} color="#dc2626" />
               </View>
-              <View className="flex-1">
-                <Text className="text-gray-900 font-bold mb-1">Zero Chemicals, No Adulteration</Text>
-                <Text className="text-gray-600">
-                  We strictly avoid synthetic antibiotics, hormones, and preservatives to give you only pure and natural nutrition.
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#1f2937', marginBottom: 2 }}>Zero Chemicals, No Adulteration</Text>
+                <Text style={{ fontSize: 12, color: '#6b7280', lineHeight: 17 }}>
+                  We strictly avoid synthetic hormones, antibiotics, and preservatives to preserve only pure and natural nutrition.
                 </Text>
               </View>
             </View>
 
-          
-            <View className="flex-row items-start">
-              <View className="bg-green-100 p-2 rounded-full mr-4">
-                <Leaf size={20} color="#16a34a" />
+            {/* Item 3 */}
+            <View style={{ flexDirection: 'row', alignItems: 'start' }}>
+              <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#dcfce7', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+                <Leaf size={16} color="#16a34a" />
               </View>
-              <View className="flex-1">
-                <Text className="text-gray-900 font-bold mb-1">Sustainable & Ethical Farming</Text>
-                <Text className="text-gray-600">
-                  Cow dung and urine naturally enrich the soil, ensuring chemical-free, fertile land where cows thrive.
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#1f2937', marginBottom: 2 }}>Ethical Farming</Text>
+                <Text style={{ fontSize: 12, color: '#6b7280', lineHeight: 17 }}>
+                  Natural processes enrich our soil, ensuring chemical-free, fertile fields where cows thrive in comfort.
                 </Text>
               </View>
             </View>
 
-            
-            <View className="flex-row items-start">
-              <View className="bg-amber-100 p-2 rounded-full mr-4">
-                <Heart size={20} color="#d97706" />
+            {/* Item 4 */}
+            <View style={{ flexDirection: 'row', alignItems: 'start' }}>
+              <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#fef3c7', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+                <Heart size={16} color="#d97706" />
               </View>
-              <View className="flex-1">
-                <Text className="text-gray-900 font-bold mb-1">Tradition Meets Purity</Text>
-                <Text className="text-gray-600">
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#1f2937', marginBottom: 2 }}>Tradition Meets Purity</Text>
+                <Text style={{ fontSize: 12, color: '#6b7280', lineHeight: 17 }}>
                   We blend time-honoured practices with modern cleanliness to deliver milk and ghee filled with natural goodness.
                 </Text>
               </View>
@@ -154,27 +153,29 @@ const about = () => {
           </View>
         </View>
 
-      
-        <View className="p-5 bg-white">
-          <Text className="text-xl font-bold text-center text-gray-900 mb-4">Our Farm Story</Text>
-          <View className="bg-green-50 p-5 rounded-xl">
-            <Text className="text-gray-700 text-center mb-3">
+        {/* Our Farm Story */}
+        <View style={{ marginTop: 24, paddingHorizontal: 16 }}>
+          <Text style={{ fontSize: 12, fontWeight: '700', color: '#9ca3af', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            Our Farm Story
+          </Text>
+          <View style={{ backgroundColor: '#fdf8f6', borderRadius: 24, padding: 20, borderWidth: 1, borderColor: '#f0e0d8' }}>
+            <Text style={{ fontSize: 13, color: '#3e2723', lineHeight: 20, marginBottom: 12, textAlign: 'justify' }}>
               Founded in 2010, Gaualla Farms began with a simple mission: to provide families with pure, unadulterated dairy products while treating our cows with the respect and care they deserve.
             </Text>
-            <Text className="text-gray-700 text-center">
+            <Text style={{ fontSize: 13, color: '#3e2723', lineHeight: 20, textAlign: 'justify' }}>
               Today, we continue this tradition, delivering farm-fresh A2 milk directly to your doorstep while maintaining our commitment to sustainable farming practices.
             </Text>
           </View>
         </View>
 
-       
-        <View className="p-5 bg-gray-100 items-center">
-          <Text className="text-gray-500 text-sm">© 2023 Gaualla Farms</Text>
-          <Text className="text-gray-500 text-sm">Pure A2 Milk Delivery</Text>
+        {/* Brand Footer */}
+        <View style={{ marginTop: 32, paddingVertical: 20, borderTopWidth: 1, borderTopColor: '#f5ede8', alignItems: 'center', gap: 4 }}>
+          <Text style={{ fontSize: 11, fontWeight: '600', color: '#9ca3af' }}>© Gaualla Farms</Text>
+          <Text style={{ fontSize: 10, color: '#d1d5db' }}>Pure A2 Milk Delivery System</Text>
         </View>
-      </ScrollView> 
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default about;
+export default AboutPage;

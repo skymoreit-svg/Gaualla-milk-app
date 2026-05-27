@@ -1,19 +1,34 @@
-import * as Notifications from "expo-notifications";
+import axios from "axios";
+import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-import axios from "axios";
 import { baseurl } from "../allapi";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+const isExpoGo = Constants.appOwnership === 'expo';
+let Notifications = null;
+
+if (!isExpoGo) {
+  try {
+    Notifications = require("expo-notifications");
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      }),
+    });
+  } catch (e) {
+    console.warn("expo-notifications require failed:", e);
+  }
+}
 
 export async function registerForPushNotifications() {
+  if (isExpoGo || !Notifications) {
+    console.log("Push notifications are not supported in Expo Go. Skipping registration.");
+    return null;
+  }
+
   try {
     if (!Device.isDevice) {
       return null;

@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from 'react';
 import {
-  View,
+  FontAwesome,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from '@expo/vector-icons';
+import axios from 'axios';
+import * as Location from 'expo-location';
+import * as SecureStore from 'expo-secure-store';
+import { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-  Switch,
+  View,
 } from 'react-native';
-import {
-  FontAwesome,
-  MaterialIcons,
-  MaterialCommunityIcons,
-  Ionicons,
-} from '@expo/vector-icons';
-import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
-import * as Location from 'expo-location';
 import { baseurl } from '../../allapi';
 
-const PLACEHOLDER_COLOR = '#9ca3af';
+const PLACEHOLDER_COLOR = '#a1887f';
 const ADDRESS_TAGS = ['home', 'office', 'other'];
 
 const AddressForm = ({ onCancel, editAddress }) => {
@@ -60,6 +60,25 @@ const AddressForm = ({ onCancel, editAddress }) => {
 
       const [place] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng });
 
+      const streetParts = [
+        place?.formattedAddress,
+        place?.name,
+        place?.streetNumber,
+        place?.street,
+        place?.subregion,
+        place?.district,
+        place?.city,
+        place?.region,
+        place?.country
+      ].filter(Boolean);
+
+      const uniqueStreetParts = [...new Set(streetParts)];
+      const filteredParts = uniqueStreetParts.filter((part, index, self) =>
+        !self.some((other, otherIndex) => index !== otherIndex && other.includes(part))
+      );
+
+      const detailedStreet = place?.formattedAddress || filteredParts.join(', ') || prev.street;
+
       setFormData((prev) => ({
         ...prev,
         latitude: lat,
@@ -67,7 +86,7 @@ const AddressForm = ({ onCancel, editAddress }) => {
         city: place?.city || place?.district || prev.city,
         state: place?.region || prev.state,
         zip_code: place?.postalCode || prev.zip_code,
-        street: place?.street || place?.name || prev.street,
+        street: detailedStreet,
       }));
     } catch (err) {
       console.log("Location fetch error:", err);
@@ -85,7 +104,7 @@ const AddressForm = ({ onCancel, editAddress }) => {
 
   const handleAddressSubmit = async () => {
     if (!formData.street.trim() || !formData.city.trim() || !formData.state.trim() || !formData.zip_code.trim()) {
-      Alert.alert('Validation', 'Please fill Street, City, State and ZIP Code.');
+      Alert.alert('Validation Error', 'Please fill Street, City, State and ZIP Code.');
       return;
     }
 
@@ -129,40 +148,56 @@ const AddressForm = ({ onCancel, editAddress }) => {
   };
 
   return (
-    <View className="bg-gray-50 p-4 rounded-xl">
-      {/* Back Button */}
-      <TouchableOpacity onPress={onCancel} className="flex-row items-center mb-4">
-        <Ionicons name="arrow-back" size={20} color="#4b5563" />
-        <Text className="ml-2 text-gray-600">Back to addresses</Text>
+    <View style={{ backgroundColor: '#fff', padding: 20, borderRadius: 24, borderWidth: 1, borderColor: '#f5ede8', shadowColor: '#3e2723', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.04, shadowRadius: 12, elevation: 2 }}>
+      {/* Back Button Link */}
+      <TouchableOpacity
+        onPress={onCancel}
+        style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}
+        activeOpacity={0.7}
+      >
+        <Ionicons name="arrow-back" size={16} color="#6d4c41" />
+        <Text style={{ marginLeft: 6, fontSize: 13, fontWeight: '700', color: '#6d4c41' }}>Back to addresses</Text>
       </TouchableOpacity>
 
       {/* Title */}
-      <Text className="text-xl font-bold text-gray-800 mb-2">
-        {isEditing ? "Edit Address" : "Add New Address"}
+      <Text style={{ fontSize: 18, fontWeight: '950', color: '#1f2937', marginBottom: 14 }}>
+        {isEditing ? "Edit Delivery Address" : "New Delivery Address"}
       </Text>
 
       {/* Use My Location Button */}
       <TouchableOpacity
         onPress={fetchCurrentLocation}
-        disabled={fetchingLocation}
-        className="flex-row items-center bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-4"
+        disabled={fetchingLocation || isSubmitting}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#fdf6f3',
+          borderWidth: 1,
+          borderColor: '#f0e0d8',
+          borderRadius: 14,
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+          marginBottom: 20,
+        }}
+        activeOpacity={0.8}
       >
         {fetchingLocation ? (
-          <ActivityIndicator size={16} color="#3b82f6" />
+          <ActivityIndicator size={16} color="#6d4c41" style={{ marginRight: 8 }} />
         ) : (
-          <MaterialIcons name="my-location" size={18} color="#3b82f6" />
+          <MaterialIcons name="my-location" size={16} color="#6d4c41" style={{ marginRight: 8 }} />
         )}
-        <Text className="ml-2 text-blue-600 font-medium">
-          {fetchingLocation ? "Fetching location..." : "Use My Current Location"}
+        <Text style={{ color: '#3e2723', fontWeight: '800', fontSize: 13 }}>
+          {fetchingLocation ? "LOCATING DETAILED PATH..." : "USE MY CURRENT LOCATION"}
         </Text>
       </TouchableOpacity>
 
-      <ScrollView className="mb-4" keyboardShouldPersistTaps="handled">
+      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         {/* Street */}
-        <View className="flex-row items-center border border-gray-300 rounded-lg bg-white mb-4">
-          <FontAwesome name="home" size={16} color="#9ca3af" style={{ paddingLeft: 12 }} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#f0e0d8', borderRadius: 14, backgroundColor: '#fdf8f6', marginBottom: 14, paddingHorizontal: 12 }}>
+          <FontAwesome name="home" size={16} color="#a1887f" />
           <TextInput
-            className="flex-1 p-3 text-gray-800"
+            style={{ flex: 1, paddingVertical: 12, paddingHorizontal: 10, fontSize: 14, color: '#3e2723', fontWeight: '500' }}
             placeholder="House / Flat / Street Address"
             placeholderTextColor={PLACEHOLDER_COLOR}
             value={formData.street}
@@ -172,10 +207,10 @@ const AddressForm = ({ onCancel, editAddress }) => {
         </View>
 
         {/* Landmark */}
-        <View className="flex-row items-center border border-gray-300 rounded-lg bg-white mb-4">
-          <MaterialIcons name="place" size={16} color="#9ca3af" style={{ paddingLeft: 12 }} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#f0e0d8', borderRadius: 14, backgroundColor: '#fdf8f6', marginBottom: 14, paddingHorizontal: 12 }}>
+          <MaterialIcons name="place" size={16} color="#a1887f" />
           <TextInput
-            className="flex-1 p-3 text-gray-800"
+            style={{ flex: 1, paddingVertical: 12, paddingHorizontal: 10, fontSize: 14, color: '#3e2723', fontWeight: '500' }}
             placeholder="Landmark (optional)"
             placeholderTextColor={PLACEHOLDER_COLOR}
             value={formData.landmark}
@@ -185,11 +220,12 @@ const AddressForm = ({ onCancel, editAddress }) => {
         </View>
 
         {/* City & State */}
-        <View className="flex-row justify-between mb-4">
-          <View className="flex-row items-center border border-gray-300 rounded-lg bg-white flex-1 mr-2">
-            <FontAwesome name="building" size={16} color="#9ca3af" style={{ paddingLeft: 12 }} />
+        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 14 }}>
+          {/* City */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, borderWidth: 1, borderColor: '#f0e0d8', borderRadius: 14, backgroundColor: '#fdf8f6', paddingHorizontal: 12 }}>
+            <FontAwesome name="building" size={14} color="#a1887f" />
             <TextInput
-              className="flex-1 p-3 text-gray-800"
+              style={{ flex: 1, paddingVertical: 12, paddingHorizontal: 10, fontSize: 14, color: '#3e2723', fontWeight: '500' }}
               placeholder="City"
               placeholderTextColor={PLACEHOLDER_COLOR}
               value={formData.city}
@@ -197,10 +233,11 @@ const AddressForm = ({ onCancel, editAddress }) => {
               editable={!isSubmitting}
             />
           </View>
-          <View className="flex-row items-center border border-gray-300 rounded-lg bg-white flex-1 ml-2">
-            <MaterialIcons name="location-city" size={16} color="#9ca3af" style={{ paddingLeft: 12 }} />
+          {/* State */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, borderWidth: 1, borderColor: '#f0e0d8', borderRadius: 14, backgroundColor: '#fdf8f6', paddingHorizontal: 12 }}>
+            <MaterialIcons name="location-city" size={16} color="#a1887f" />
             <TextInput
-              className="flex-1 p-3 text-gray-800"
+              style={{ flex: 1, paddingVertical: 12, paddingHorizontal: 10, fontSize: 14, color: '#3e2723', fontWeight: '500' }}
               placeholder="State"
               placeholderTextColor={PLACEHOLDER_COLOR}
               value={formData.state}
@@ -211,11 +248,12 @@ const AddressForm = ({ onCancel, editAddress }) => {
         </View>
 
         {/* ZIP Code & Country */}
-        <View className="flex-row justify-between mb-4">
-          <View className="flex-row items-center border border-gray-300 rounded-lg bg-white flex-1 mr-2">
-            <MaterialCommunityIcons name="numeric" size={18} color="#9ca3af" style={{ paddingLeft: 12 }} />
+        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 18 }}>
+          {/* ZIP */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, borderWidth: 1, borderColor: '#f0e0d8', borderRadius: 14, backgroundColor: '#fdf8f6', paddingHorizontal: 12 }}>
+            <MaterialCommunityIcons name="numeric" size={16} color="#a1887f" />
             <TextInput
-              className="flex-1 p-3 text-gray-800"
+              style={{ flex: 1, paddingVertical: 12, paddingHorizontal: 10, fontSize: 14, color: '#3e2723', fontWeight: '500' }}
               placeholder="ZIP Code"
               placeholderTextColor={PLACEHOLDER_COLOR}
               value={formData.zip_code}
@@ -224,10 +262,11 @@ const AddressForm = ({ onCancel, editAddress }) => {
               editable={!isSubmitting}
             />
           </View>
-          <View className="flex-row items-center border border-gray-300 rounded-lg bg-white flex-1 ml-2">
-            <FontAwesome name="globe" size={16} color="#9ca3af" style={{ paddingLeft: 12 }} />
+          {/* Country */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, borderWidth: 1, borderColor: '#f0e0d8', borderRadius: 14, backgroundColor: '#fdf8f6', paddingHorizontal: 12 }}>
+            <FontAwesome name="globe" size={14} color="#a1887f" />
             <TextInput
-              className="flex-1 p-3 text-gray-800"
+              style={{ flex: 1, paddingVertical: 12, paddingHorizontal: 10, fontSize: 14, color: '#3e2723', fontWeight: '500' }}
               placeholder="Country"
               placeholderTextColor={PLACEHOLDER_COLOR}
               value={formData.country}
@@ -237,9 +276,9 @@ const AddressForm = ({ onCancel, editAddress }) => {
           </View>
         </View>
 
-        {/* Address Tag */}
-        <Text className="text-gray-700 font-medium mb-2">Save as</Text>
-        <View className="flex-row mb-4">
+        {/* Address Tag Selector */}
+        <Text style={{ fontSize: 12, fontWeight: '750', color: '#6d4c41', textTransform: 'uppercase', marginBottom: 8, letterSpacing: 0.5 }}>Save address as</Text>
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 18 }}>
           {ADDRESS_TAGS.map((tag) => {
             const isSelected = formData.address_type === tag;
             const icon = tag === 'home' ? 'home' : tag === 'office' ? 'briefcase' : 'map-marker';
@@ -247,21 +286,32 @@ const AddressForm = ({ onCancel, editAddress }) => {
               <TouchableOpacity
                 key={tag}
                 onPress={() => handleChange('address_type', tag)}
-                className={`flex-row items-center mr-3 px-4 py-2.5 rounded-full border ${
-                  isSelected
-                    ? 'bg-green-600 border-green-600'
-                    : 'bg-white border-gray-300'
-                }`}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 14,
+                  paddingVertical: 8,
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  backgroundColor: isSelected ? '#3e2723' : '#fff',
+                  borderColor: isSelected ? '#3e2723' : '#f0e0d8',
+                }}
+                activeOpacity={0.8}
               >
                 <FontAwesome
                   name={icon}
-                  size={14}
+                  size={12}
                   color={isSelected ? '#fff' : '#6b7280'}
                 />
                 <Text
-                  className={`ml-2 font-medium capitalize ${
-                    isSelected ? 'text-white' : 'text-gray-600'
-                  }`}
+                  style={{
+                    marginLeft: 6,
+                    fontSize: 12,
+                    fontWeight: '700',
+                    color: isSelected ? '#white' : '#6b7280',
+                    color: isSelected ? '#fff' : '#6b7280',
+                    textTransform: 'capitalize',
+                  }}
                 >
                   {tag}
                 </Text>
@@ -270,46 +320,71 @@ const AddressForm = ({ onCancel, editAddress }) => {
           })}
         </View>
 
-        {/* Default Address Switch */}
-        <View className="flex-row items-center mb-4">
+        {/* Default Address Switch Row */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fdf8f6', borderRadius: 16, padding: 12, borderWidth: 1, borderColor: '#f0e0d8', marginBottom: 20 }}>
+          <Text style={{ fontSize: 13, color: '#3e2723', fontWeight: '700' }}>Set as default delivery address</Text>
           <Switch
             value={formData.is_default === 1}
             onValueChange={(value) => handleChange("is_default", value ? 1 : 0)}
             disabled={isSubmitting}
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={formData.is_default === 1 ? "#3b82f6" : "#f4f3f4"}
+            trackColor={{ false: "#d1d5db", true: "#fde68a" }}
+            thumbColor={formData.is_default === 1 ? "#fbbf24" : "#f4f3f4"}
           />
-          <Text className="ml-2 text-gray-800">Set as default address</Text>
         </View>
 
-        {/* Error */}
+        {/* Error Alert Box */}
         {error ? (
-          <View className="bg-red-50 border border-red-200 p-3 rounded-lg mb-4">
-            <Text className="text-red-600">{error}</Text>
+          <View style={{ backgroundColor: '#fee2e2', borderColor: '#fca5a5', borderWidth: 1, padding: 12, borderRadius: 12, marginBottom: 16 }}>
+            <Text style={{ color: '#b91c1c', fontSize: 13, fontWeight: '600' }}>{error}</Text>
           </View>
         ) : null}
 
-        {/* Buttons */}
-        <View className="flex-row justify-between">
+        {/* Action Buttons Pairing */}
+        <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
           <TouchableOpacity
-            className={`flex-1 mx-1 py-3 rounded-lg items-center bg-blue-500 ${isSubmitting ? "opacity-60" : ""}`}
+            style={{
+              flex: 1,
+              height: 48,
+              borderRadius: 14,
+              backgroundColor: '#3e2723',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: isSubmitting ? 0.6 : 1,
+              elevation: 2,
+              shadowColor: '#3e2723',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.1,
+              shadowRadius: 6
+            }}
             onPress={handleAddressSubmit}
             disabled={isSubmitting}
+            activeOpacity={0.9}
           >
             {isSubmitting ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-white font-semibold">
-                {isEditing ? "Update Address" : "Save Address"}
+              <Text style={{ color: '#fff', fontWeight: '800', fontSize: 13, letterSpacing: 0.5 }}>
+                {isEditing ? "UPDATE ADDRESS" : "SAVE ADDRESS"}
               </Text>
             )}
           </TouchableOpacity>
           <TouchableOpacity
-            className={`flex-1 mx-1 py-3 rounded-lg items-center bg-gray-200 ${isSubmitting ? "opacity-60" : ""}`}
+            style={{
+              flex: 1,
+              height: 48,
+              borderRadius: 14,
+              backgroundColor: '#f3f4f6',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 1,
+              borderColor: '#e5e7eb',
+              opacity: isSubmitting ? 0.6 : 1
+            }}
             onPress={onCancel}
             disabled={isSubmitting}
+            activeOpacity={0.8}
           >
-            <Text className="text-gray-800 font-semibold">Cancel</Text>
+            <Text style={{ color: '#4b5563', fontWeight: '800', fontSize: 13, letterSpacing: 0.5 }}>CANCEL</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

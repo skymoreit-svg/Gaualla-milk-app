@@ -1,7 +1,7 @@
-import { View, Text, ScrollView, Linking } from 'react-native';
+import { View, Text, ScrollView, Linking, StyleSheet } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Shield, Lock, Eye, Trash2, Mail, Server, Globe } from 'lucide-react-native';
+import { ArrowLeft, Shield, Lock, Eye, Trash2, Server, Globe } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { TouchableOpacity } from 'react-native';
 
@@ -9,15 +9,11 @@ const Privacy = () => {
   const router = useRouter();
 
   const handleGoBack = () => {
-    const canGoBack = router.canGoBack();
-    console.log("[BackButton] privacy pressed", { canGoBack });
     if (router.canGoBack()) {
-      console.log("[BackButton] privacy -> router.back()");
       router.back();
-      return;
+    } else {
+      router.replace("/(tab)/profile");
     }
-    console.log("[BackButton] privacy -> fallback /(tab)/profile");
-    router.replace("/(tab)/profile");
   };
 
   const openEmail = () => {
@@ -25,186 +21,234 @@ const Privacy = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header */}
-      <View className="flex-row items-center px-5 py-4 border-b border-gray-200">
+      <View style={styles.header}>
         <TouchableOpacity
           onPress={handleGoBack}
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          className="mr-4 p-2 rounded-lg"
+          style={styles.backBtn}
+          activeOpacity={0.8}
         >
-          <ArrowLeft pointerEvents="none" size={24} color="#374151" />
+          <ArrowLeft size={20} color="#3e2723" />
         </TouchableOpacity>
-        <View className="flex-row items-center">
-          <Shield size={22} color="#3b82f6" />
-          <Text className="text-xl font-bold ml-2 text-gray-900">Privacy Policy</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Shield size={20} color="#6d4c41" />
+          <Text style={styles.headerTitle}>Privacy Policy</Text>
         </View>
+        <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView className="flex-1 px-5" showsVerticalScrollIndicator={false}>
-        <Text className="text-sm text-gray-500 mt-4 mb-6">
-          Last updated: {new Date().toLocaleDateString()}
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.dateText}>
+          Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </Text>
 
-        <Text className="text-base text-gray-700 mb-6">
-          At DairyDelight, we take your privacy seriously. This Privacy Policy describes how we collect, use, and share your personal information when you use our mobile application and services.
+        <Text style={styles.introText}>
+          At Gaualla, we take your privacy seriously. This Privacy Policy describes how we collect, use, and share your personal information when you use our mobile application and farm-to-table dairy delivery services.
         </Text>
 
-        <Text className="text-lg font-bold text-gray-900 mb-4">
+        {/* Section 1 */}
+        <Text style={styles.sectionTitle}>
           1. Information We Collect
         </Text>
-        <View className="flex-row items-start mb-2">
-          <Shield size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            <Text className="font-semibold">Personal Information:</Text> Name, email address, phone number, delivery address when you create an account or place an order.
+        <View style={styles.bulletItem}>
+          <Shield size={16} color="#6d4c41" style={styles.bulletIcon} />
+          <Text style={styles.bulletText}>
+            <Text style={styles.boldLabel}>Personal Information:</Text> Name, email address, phone number, and delivery addresses when you register or order.
           </Text>
         </View>
-        <View className="flex-row items-start mb-2">
-          <Shield size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            <Text className="font-semibold">Payment Information:</Text> Credit card details, billing address (processed securely by our payment partners).
+        <View style={styles.bulletItem}>
+          <Shield size={16} color="#6d4c41" style={styles.bulletIcon} />
+          <Text style={styles.bulletText}>
+            <Text style={styles.boldLabel}>Payment Details:</Text> Transaction details and payment history. We do not store full payment credentials on our servers; they are encrypted by certified processors.
           </Text>
         </View>
-        <View className="flex-row items-start mb-2">
-          <Shield size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            <Text className="font-semibold">Usage Data:</Text> Information about how you interact with our app, including order history, preferences, and device information.
+        <View style={styles.bulletItem}>
+          <Shield size={16} color="#6d4c41" style={styles.bulletIcon} />
+          <Text style={styles.bulletText}>
+            <Text style={styles.boldLabel}>Usage Logs:</Text> Order selections, delivery notes, and technical logs to help customize catalog suggestions.
           </Text>
         </View>
-        <View className="flex-row items-start mb-6">
-          <Shield size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            <Text className="font-semibold">Location Data:</Text> With your permission, we may collect precise location data to provide delivery services.
+        <View style={styles.bulletItem}>
+          <Shield size={16} color="#6d4c41" style={styles.bulletIcon} />
+          <Text style={styles.bulletText}>
+            <Text style={styles.boldLabel}>Geolocation Data:</Text> GPS coordinates used strictly with your permission to verify local route boundaries.
           </Text>
         </View>
 
-        <Text className="text-lg font-bold text-gray-900 mb-4">
+        {/* Section 2 */}
+        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
           2. How We Use Your Information
         </Text>
-        <View className="flex-row items-start mb-2">
-          <Lock size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            Process and deliver your dairy product orders
-          </Text>
+        <View style={styles.bulletItem}>
+          <Lock size={16} color="#6d4c41" style={styles.bulletIcon} />
+          <Text style={styles.bulletText}>Process and dispatch scheduled farm-to-table dairy orders</Text>
         </View>
-        <View className="flex-row items-start mb-2">
-          <Lock size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            Communicate with you about orders, products, and promotions
-          </Text>
+        <View style={styles.bulletItem}>
+          <Lock size={16} color="#6d4c41" style={styles.bulletIcon} />
+          <Text style={styles.bulletText}>Deliver support notifications and order tracking links</Text>
         </View>
-        <View className="flex-row items-start mb-2">
-          <Lock size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            Improve our app, products, and services
-          </Text>
+        <View style={styles.bulletItem}>
+          <Lock size={16} color="#6d4c41" style={styles.bulletIcon} />
+          <Text style={styles.bulletText}>Optimize routing efficiency for our delivery partners</Text>
         </View>
-        <View className="flex-row items-start mb-2">
-          <Lock size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            Personalize your experience and provide relevant recommendations
-          </Text>
-        </View>
-        <View className="flex-row items-start mb-6">
-          <Lock size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            Ensure the security of our services and prevent fraud
-          </Text>
+        <View style={styles.bulletItem}>
+          <Lock size={16} color="#6d4c41" style={styles.bulletIcon} />
+          <Text style={styles.bulletText}>Prevent fraudulent transactions and secure payment profiles</Text>
         </View>
 
-        <Text className="text-lg font-bold text-gray-900 mb-4">
+        {/* Section 3 */}
+        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
           3. How We Share Your Information
         </Text>
-        <Text className="text-gray-700 mb-6">
-          We do not sell your personal information. We may share your information with:
-          Service providers (payment processors, delivery partners)
-          Legal authorities when required by law
-          Business transfers in case of merger or acquisition
+        <Text style={styles.bodyText}>
+          We value your privacy and do not sell your personal data. We only share details with trusted logistics partners (delivery agents) and secure payment processors (like Razorpay) strictly required to fulfill your order transactions.
         </Text>
 
-        <Text className="text-lg font-bold text-gray-900 mb-4">
-          4. Data Security
+        {/* Section 4 */}
+        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
+          4. Your Choices & Controls
         </Text>
-        <View className="flex-row items-start mb-2">
-          <Lock size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            We implement appropriate security measures to protect your personal information
+        <View style={styles.bulletItem}>
+          <Eye size={16} color="#6d4c41" style={styles.bulletIcon} />
+          <Text style={styles.bulletText}>
+            <Text style={styles.boldLabel}>Profile Editing:</Text> Review and edit name, phone, and addresses directly inside profile tabs.
           </Text>
         </View>
-        <View className="flex-row items-start mb-2">
-          <Lock size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            Payment information is encrypted and processed by secure payment gateways
+        <View style={styles.bulletItem}>
+          <Trash2 size={16} color="#6d4c41" style={styles.bulletIcon} />
+          <Text style={styles.bulletText}>
+            <Text style={styles.boldLabel}>Account Deletion:</Text> Contact us directly to wipe data histories from active databases.
           </Text>
         </View>
-        <View className="flex-row items-start mb-6">
-          <Lock size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            Despite our efforts, no security measures are 100% secure
+        <View style={styles.bulletItem}>
+          <Server size={16} color="#6d4c41" style={styles.bulletIcon} />
+          <Text style={styles.bulletText}>
+            <Text style={styles.boldLabel}>Data Portability:</Text> Request structural reports outlining personal files currently saved.
           </Text>
         </View>
 
-        <Text className="text-lg font-bold text-gray-900 mb-4">
-          5. Your Rights and Choices
+        {/* Contact */}
+        <Text style={[styles.sectionTitle, { marginTop: 28 }]}>
+          5. Contact Data Protection Desk
         </Text>
-        <View className="flex-row items-start mb-2">
-          <Eye size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            <Text className="font-semibold">Access and Update:</Text> You can review and edit your personal information in the app settings
-          </Text>
-        </View>
-        <View className="flex-row items-start mb-2">
-          <Trash2 size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            <Text className="font-semibold">Deletion:</Text> You can request deletion of your account and personal data
-          </Text>
-        </View>
-        <View className="flex-row items-start mb-2">
-          <Server size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            <Text className="font-semibold">Data Portability:</Text> You can request a copy of your personal data
-          </Text>
-        </View>
-        <View className="flex-row items-start mb-6">
-          <Globe size={18} color="#6b7280" className="mt-1 mr-2" />
-          <Text className="text-gray-700 flex-1">
-            <Text className="font-semibold">Marketing Preferences:</Text> You can opt-out of marketing communications at any time
-          </Text>
-        </View>
-
-        <Text className="text-lg font-bold text-gray-900 mb-4">
-          6. Data Retention
+        <Text style={styles.bodyText}>
+          For feedback, complaints, or inquiries regarding your data security, please mail us:
         </Text>
-        <Text className="text-gray-700 mb-6">
-          We retain your personal information for as long as necessary to provide our services, comply with legal obligations, resolve disputes, and enforce our agreements. Order information is typically retained for 5 years for tax and accounting purposes.
-        </Text>
-
-        <Text className="text-lg font-bold text-gray-900 mb-4">
-          7. Children's Privacy
-        </Text>
-        <Text className="text-gray-700 mb-6">
-          Our services are not directed to individuals under 16. We do not knowingly collect personal information from children. If we become aware that a child has provided us with personal information, we will take steps to delete such information.
-        </Text>
-
-        <Text className="text-lg font-bold text-gray-900 mb-4">
-          8. Changes to This Policy
-        </Text>
-        <Text className="text-gray-700 mb-6">
-          We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last updated" date.
-        </Text>
-
-        <Text className="text-lg font-bold text-gray-900 mb-4">
-          9. Contact Us
-        </Text>
-        <Text className="text-gray-700 mb-2">
-          If you have any questions about this Privacy Policy, please contact us at:
-        </Text>
-        <TouchableOpacity onPress={openEmail} className="mb-8">
-          <Text className="text-blue-500">Gauallamilkpvtltd@gmail.com</Text>
+        <TouchableOpacity onPress={openEmail} activeOpacity={0.8} style={styles.emailContainer}>
+          <Text style={styles.emailText}>Gauallamilkpvtltd@gmail.com</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F6EFC8',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderColor: '#f5ede8',
+    elevation: 2,
+    shadowColor: '#3e2723',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#fdf6f3',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#f0e0d8',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#1f2937',
+    letterSpacing: -0.5,
+    marginLeft: 6,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  dateText: {
+    fontSize: 11,
+    color: '#9ca3af',
+    fontWeight: '600',
+    marginTop: 16,
+    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  introText: {
+    fontSize: 14,
+    color: '#4b5563',
+    lineHeight: 20,
+    fontWeight: '500',
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#3e2723',
+    marginBottom: 12,
+    letterSpacing: -0.2,
+  },
+  bulletItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+    paddingRight: 10,
+  },
+  bulletIcon: {
+    marginTop: 3,
+    marginRight: 10,
+  },
+  bulletText: {
+    fontSize: 13,
+    color: '#4b5563',
+    lineHeight: 18,
+    flex: 1,
+  },
+  boldLabel: {
+    fontWeight: '700',
+    color: '#1f2937',
+  },
+  bodyText: {
+    fontSize: 13,
+    color: '#4b5563',
+    lineHeight: 18,
+    marginBottom: 12,
+  },
+  emailContainer: {
+    marginTop: 4,
+    backgroundColor: '#fdf6f3',
+    borderWidth: 1,
+    borderColor: '#f0e0d8',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignSelf: 'flex-start',
+  },
+  emailText: {
+    color: '#3e2723',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+});
 
 export default Privacy;

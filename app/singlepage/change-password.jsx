@@ -1,19 +1,19 @@
-import React, { useState } from "react";
+import axios from "axios";
+import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { ArrowLeft, Check, Eye, EyeOff, Lock } from "lucide-react-native";
+import { useState } from "react";
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  Keyboard,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  Alert,
-  ScrollView,
-  Keyboard,
-  ActivityIndicator,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
-import axios from "axios";
-import { ArrowLeft, Lock, Eye, EyeOff, Check } from "lucide-react-native";
 import { baseurl } from "../../allapi";
 
 export default function ChangePassword() {
@@ -37,19 +37,19 @@ export default function ChangePassword() {
     Keyboard.dismiss();
 
     if (!oldPassword.trim()) {
-      Alert.alert("Validation", "Please enter your current password");
+      Alert.alert("Validation Error", "Please enter your current password");
       return;
     }
     if (newPassword.length < 6) {
-      Alert.alert("Validation", "New password must be at least 6 characters");
+      Alert.alert("Validation Error", "New password must be at least 6 characters");
       return;
     }
     if (newPassword !== confirmPassword) {
-      Alert.alert("Validation", "New passwords do not match");
+      Alert.alert("Validation Error", "New passwords do not match");
       return;
     }
     if (oldPassword === newPassword) {
-      Alert.alert("Validation", "New password must be different from the current one");
+      Alert.alert("Validation Error", "New password must be different from the current one");
       return;
     }
 
@@ -57,7 +57,7 @@ export default function ChangePassword() {
     try {
       const token = await SecureStore.getItemAsync("authToken");
       if (!token) {
-        Alert.alert("Error", "Session expired. Please login again.");
+        Alert.alert("Session Expired", "Session expired. Please login again.");
         router.replace("/singlepage/login");
         return;
       }
@@ -85,131 +85,139 @@ export default function ChangePassword() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <View className="flex-1">
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#F6EFC8" }} edges={['top', 'left', 'right']}>
+      <View style={{ flex: 1 }}>
         {/* Header */}
-        <View className="bg-white flex-row items-center px-4 py-4 shadow-sm">
+        <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 12, backgroundColor: "#fff", borderBottomWidth: 1, borderColor: "#f5ede8", shadowColor: "#3e2723", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 }}>
           <TouchableOpacity
             onPress={() => router.back()}
-            className="p-2 rounded-lg bg-gray-100"
+            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "#fdf6f3", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "#f0e0d8", marginRight: 12 }}
+            activeOpacity={0.8}
           >
-            <ArrowLeft size={22} color="#1f2937" />
+            <ArrowLeft size={20} color="#3e2723" />
           </TouchableOpacity>
-          <Text className="text-xl font-bold text-gray-900 ml-4">
+          <Text style={{ fontSize: 18, fontWeight: "900", color: "#1f2937", letterSpacing: -0.5 }}>
             Change Password
           </Text>
         </View>
 
         <ScrollView
-          className="flex-1"
+          style={{ flex: 1 }}
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Info banner */}
-          <View className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-            <Text className="text-blue-800 text-sm leading-5">
-              For security, enter your current password first. Your new password
-              must be at least 6 characters long.
+          {/* Info Banner */}
+          <View style={{ backgroundColor: "#fdf8f6", borderWidth: 1, borderColor: "#f0e0d8", borderRadius: 20, padding: 16, marginBottom: 24 }}>
+            <Text style={{ color: "#6d4c41", fontSize: 13, lineHeight: 18, fontWeight: "500" }}>
+              For security, enter your current password first. Your new password must be at least 6 characters long.
             </Text>
           </View>
 
           {/* Current Password */}
           <View style={{ marginBottom: 20 }}>
-            <Text className="text-gray-600 text-sm font-medium mb-2 ml-1">
+            <Text style={{ color: "#6d4c41", fontSize: 12, fontWeight: "800", textTransform: "uppercase", marginBottom: 8, marginLeft: 2, letterSpacing: 0.5 }}>
               Current Password
             </Text>
-            <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-3">
-              <Lock size={20} color="#6b7280" />
+            <View style={{ flexDirection: "row", alignItems: "center", backgroundColor: "#fff", borderWidth: 1, borderColor: "#f0e0d8", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 }}>
+              <Lock size={18} color="#a1887f" />
               <TextInput
                 value={oldPassword}
                 onChangeText={setOldPassword}
                 placeholder="Enter current password"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#a1887f"
                 secureTextEntry={!showOld}
-                className="flex-1 ml-3 text-gray-800 text-base"
+                style={{ flex: 1, marginLeft: 10, fontSize: 15, color: "#3e2723", fontWeight: "500", padding: 0 }}
                 autoCapitalize="none"
               />
-              <TouchableOpacity onPress={() => setShowOld(!showOld)} style={{ padding: 4 }}>
-                {showOld ? <EyeOff size={20} color="#6b7280" /> : <Eye size={20} color="#6b7280" />}
+              <TouchableOpacity onPress={() => setShowOld(!showOld)} style={{ padding: 4 }} activeOpacity={0.7}>
+                {showOld ? <EyeOff size={18} color="#a1887f" /> : <Eye size={18} color="#a1887f" />}
               </TouchableOpacity>
             </View>
           </View>
 
           {/* New Password */}
           <View style={{ marginBottom: 20 }}>
-            <Text className="text-gray-600 text-sm font-medium mb-2 ml-1">
+            <Text style={{ color: "#6d4c41", fontSize: 12, fontWeight: "800", textTransform: "uppercase", marginBottom: 8, marginLeft: 2, letterSpacing: 0.5 }}>
               New Password
             </Text>
-            <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-3">
-              <Lock size={20} color="#6b7280" />
+            <View style={{ flexDirection: "row", alignItems: "center", backgroundColor: "#fff", borderWidth: 1, borderColor: "#f0e0d8", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 }}>
+              <Lock size={18} color="#a1887f" />
               <TextInput
                 value={newPassword}
                 onChangeText={setNewPassword}
                 placeholder="Enter new password (min 6 chars)"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#a1887f"
                 secureTextEntry={!showNew}
-                className="flex-1 ml-3 text-gray-800 text-base"
+                style={{ flex: 1, marginLeft: 10, fontSize: 15, color: "#3e2723", fontWeight: "500", padding: 0 }}
                 autoCapitalize="none"
               />
-              <TouchableOpacity onPress={() => setShowNew(!showNew)} style={{ padding: 4 }}>
-                {showNew ? <EyeOff size={20} color="#6b7280" /> : <Eye size={20} color="#6b7280" />}
+              <TouchableOpacity onPress={() => setShowNew(!showNew)} style={{ padding: 4 }} activeOpacity={0.7}>
+                {showNew ? <EyeOff size={18} color="#a1887f" /> : <Eye size={18} color="#a1887f" />}
               </TouchableOpacity>
             </View>
           </View>
 
           {/* Confirm New Password */}
           <View style={{ marginBottom: 20 }}>
-            <Text className="text-gray-600 text-sm font-medium mb-2 ml-1">
+            <Text style={{ color: "#6d4c41", fontSize: 12, fontWeight: "800", textTransform: "uppercase", marginBottom: 8, marginLeft: 2, letterSpacing: 0.5 }}>
               Confirm New Password
             </Text>
-            <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-3">
-              <Lock size={20} color="#6b7280" />
+            <View style={{ flexDirection: "row", alignItems: "center", backgroundColor: "#fff", borderWidth: 1, borderColor: "#f0e0d8", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 }}>
+              <Lock size={18} color="#a1887f" />
               <TextInput
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 placeholder="Re-enter new password"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#a1887f"
                 secureTextEntry={!showConfirm}
-                className="flex-1 ml-3 text-gray-800 text-base"
+                style={{ flex: 1, marginLeft: 10, fontSize: 15, color: "#3e2723", fontWeight: "500", padding: 0 }}
                 autoCapitalize="none"
               />
-              <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)} style={{ padding: 4 }}>
-                {showConfirm ? <EyeOff size={20} color="#6b7280" /> : <Eye size={20} color="#6b7280" />}
+              <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)} style={{ padding: 4 }} activeOpacity={0.7}>
+                {showConfirm ? <EyeOff size={18} color="#a1887f" /> : <Eye size={18} color="#a1887f" />}
               </TouchableOpacity>
             </View>
           </View>
 
           {newPassword.length > 0 && newPassword.length < 6 && (
-            <Text className="text-red-500 text-xs mb-4 ml-1">
-              Password must be at least 6 characters
+            <Text style={{ color: "#ef4444", fontSize: 12, fontWeight: "600", marginBottom: 16, marginLeft: 2 }}>
+              ⚠️ Password must be at least 6 characters
             </Text>
           )}
 
           {confirmPassword.length > 0 && newPassword !== confirmPassword && (
-            <Text className="text-red-500 text-xs mb-4 ml-1">
-              Passwords do not match
+            <Text style={{ color: "#ef4444", fontSize: 12, fontWeight: "600", marginBottom: 16, marginLeft: 2 }}>
+              ⚠️ Passwords do not match
             </Text>
           )}
 
           <TouchableOpacity
             onPress={handleChangePassword}
             disabled={loading || !canSubmit}
-            className={`mt-4 py-4 rounded-xl flex-row items-center justify-center ${
-              canSubmit && !loading ? "bg-green-600" : "bg-gray-300"
-            }`}
+            style={{
+              marginTop: 12,
+              height: 52,
+              borderRadius: 16,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: canSubmit && !loading ? "#3e2723" : "#e5e7eb",
+              shadowColor: "#3e2723",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: canSubmit && !loading ? 0.15 : 0,
+              shadowRadius: 8,
+              elevation: canSubmit && !loading ? 3 : 0,
+            }}
+            activeOpacity={0.9}
           >
             {loading ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
               <>
-                <Check size={20} color={canSubmit ? "#fff" : "#6b7280"} />
-                <Text
-                  className={`ml-2 text-lg font-bold ${
-                    canSubmit ? "text-white" : "text-gray-500"
-                  }`}
-                >
-                  Update Password
+                <Check size={20} color={canSubmit ? "#fff" : "#9ca3af"} />
+                <Text style={{ marginLeft: 8, fontSize: 15, fontWeight: "800", color: canSubmit ? "#fff" : "#9ca3af", letterSpacing: 0.5 }}>
+                  UPDATE PASSWORD
                 </Text>
               </>
             )}

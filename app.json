@@ -29,7 +29,11 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.gauallamilk.app",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "navigationBar": {
+        "backgroundColor": "#F6EFC8",
+        "buttonColor": "dark"
+      }
     },
     "web": {
       "output": "static",
@@ -44,9 +48,9 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#942e29",
+          "backgroundColor": "#FFFFFF",
           "dark": {
-            "backgroundColor": "#942e29"
+            "backgroundColor": "#FFFFFF"
           }
         }
       ],
@@ -59,7 +63,9 @@
           "sounds": [],
           "enableBackgroundRemoteNotifications": true
         }
-      ]
+      ],
+      "expo-font",
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -68,8 +74,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "573319d6-0908-47f0-8ca1-35fe57cb4d4a"
+        "projectId": "47c4d418-085b-470c-aab3-4768eaac1503"
       }
-    }
+    },
+    "owner": "prasad2001"
   }
 }

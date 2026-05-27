@@ -9,7 +9,6 @@ import {
   Pressable,
   Keyboard,
   ActivityIndicator,
-  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector, useDispatch } from "react-redux";
@@ -40,15 +39,15 @@ export default function EditProfile() {
     Keyboard.dismiss();
 
     if (!name.trim()) {
-      Alert.alert("Validation", "Name cannot be empty");
+      Alert.alert("Validation Error", "Name cannot be empty");
       return;
     }
     if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) {
-      Alert.alert("Validation", "Please enter a valid email");
+      Alert.alert("Validation Error", "Please enter a valid email address");
       return;
     }
     if (!phone.trim() || phone.trim().length < 10) {
-      Alert.alert("Validation", "Please enter a valid phone number");
+      Alert.alert("Validation Error", "Please enter a valid 10-digit phone number");
       return;
     }
 
@@ -56,7 +55,7 @@ export default function EditProfile() {
     try {
       const token = await SecureStore.getItemAsync("authToken");
       if (!token) {
-        Alert.alert("Error", "Session expired. Please login again.");
+        Alert.alert("Session Expired", "Session expired. Please login again.");
         router.replace("/singlepage/login");
         return;
       }
@@ -85,88 +84,108 @@ export default function EditProfile() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <Pressable className="flex-1" onPress={Keyboard.dismiss}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#F6EFC8" }} edges={['top', 'left', 'right']}>
+      <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
         {/* Header */}
-        <View className="bg-white flex-row items-center px-4 py-4 shadow-sm">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="p-2 rounded-lg bg-gray-100"
-          >
-            <ArrowLeft size={22} color="#1f2937" />
-          </TouchableOpacity>
-          <Text className="text-xl font-bold text-gray-900 ml-4">
-            Edit Profile
-          </Text>
-          <View className="flex-1" />
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 12, backgroundColor: "#fff", borderBottomWidth: 1, borderColor: "#f5ede8", shadowColor: "#3e2723", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 }}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "#fdf6f3", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "#f0e0d8", marginRight: 12 }}
+              activeOpacity={0.8}
+            >
+              <ArrowLeft size={20} color="#3e2723" />
+            </TouchableOpacity>
+            <Text style={{ fontSize: 18, fontWeight: "900", color: "#1f2937", letterSpacing: -0.5 }}>
+              Edit Profile
+            </Text>
+          </View>
+          
           <TouchableOpacity
             onPress={handleSave}
             disabled={loading || !hasChanges}
-            className={`px-5 py-2 rounded-xl ${
-              hasChanges && !loading ? "bg-blue-600" : "bg-gray-300"
-            }`}
+            style={{
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              borderRadius: 12,
+              backgroundColor: hasChanges && !loading ? "#3e2723" : "#e5e7eb",
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+            activeOpacity={0.8}
           >
             {loading ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Text
-                className={`font-bold ${
-                  hasChanges ? "text-white" : "text-gray-500"
-                }`}
-              >
-                Save
+              <Text style={{ fontSize: 13, fontWeight: "800", color: hasChanges ? "#fff" : "#9ca3af" }}>
+                SAVE
               </Text>
             )}
           </TouchableOpacity>
         </View>
 
         <ScrollView
-          className="flex-1"
+          style={{ flex: 1 }}
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Avatar */}
-          <View className="items-center mb-8">
-            <View className="bg-blue-500 w-24 h-24 rounded-full items-center justify-center">
-              <Text className="text-white text-4xl font-bold">
+          {/* Avatar / Initials bubble */}
+          <View style={{ alignItems: "center", marginBottom: 28 }}>
+            <View style={{
+              width: 88,
+              height: 88,
+              borderRadius: 44,
+              backgroundColor: "#fdf6f3",
+              borderWidth: 2,
+              borderColor: "#f0e0d8",
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#3e2723",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.05,
+              shadowRadius: 10,
+              elevation: 2
+            }}>
+              <Text style={{ color: "#3e2723", fontSize: 32, fontWeight: "900" }}>
                 {name ? name.charAt(0).toUpperCase() : "U"}
               </Text>
             </View>
+            <Text style={{ marginTop: 8, fontSize: 12, fontWeight: "700", color: "#9ca3af", textTransform: "uppercase" }}>VIP MEMBER</Text>
           </View>
 
-          {/* Name Field */}
-          <View className="mb-5">
-            <Text className="text-gray-600 text-sm font-medium mb-2 ml-1">
+          {/* Full Name */}
+          <View style={{ marginBottom: 20 }}>
+            <Text style={{ color: "#6d4c41", fontSize: 12, fontWeight: "800", textTransform: "uppercase", marginBottom: 8, marginLeft: 2, letterSpacing: 0.5 }}>
               Full Name
             </Text>
-            <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-3">
-              <User size={20} color="#6b7280" />
+            <View style={{ flexDirection: "row", alignItems: "center", backgroundColor: "#fff", borderWidth: 1, borderColor: "#f0e0d8", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 }}>
+              <User size={18} color="#a1887f" />
               <TextInput
                 value={name}
                 onChangeText={setName}
                 placeholder="Enter your name"
-                placeholderTextColor="#9ca3af"
-                className="flex-1 ml-3 text-gray-800 text-base"
+                placeholderTextColor="#a1887f"
+                style={{ flex: 1, marginLeft: 10, fontSize: 15, color: "#3e2723", fontWeight: "500", padding: 0 }}
                 autoCapitalize="words"
                 returnKeyType="next"
               />
             </View>
           </View>
 
-          {/* Email Field */}
-          <View className="mb-5">
-            <Text className="text-gray-600 text-sm font-medium mb-2 ml-1">
+          {/* Email Address */}
+          <View style={{ marginBottom: 20 }}>
+            <Text style={{ color: "#6d4c41", fontSize: 12, fontWeight: "800", textTransform: "uppercase", marginBottom: 8, marginLeft: 2, letterSpacing: 0.5 }}>
               Email Address
             </Text>
-            <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-3">
-              <Mail size={20} color="#6b7280" />
+            <View style={{ flexDirection: "row", alignItems: "center", backgroundColor: "#fff", borderWidth: 1, borderColor: "#f0e0d8", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 }}>
+              <Mail size={18} color="#a1887f" />
               <TextInput
                 value={email}
                 onChangeText={setEmail}
                 placeholder="Enter your email"
-                placeholderTextColor="#9ca3af"
-                className="flex-1 ml-3 text-gray-800 text-base"
+                placeholderTextColor="#a1887f"
+                style={{ flex: 1, marginLeft: 10, fontSize: 15, color: "#3e2723", fontWeight: "500", padding: 0 }}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 returnKeyType="next"
@@ -174,19 +193,19 @@ export default function EditProfile() {
             </View>
           </View>
 
-          {/* Phone Field */}
-          <View className="mb-5">
-            <Text className="text-gray-600 text-sm font-medium mb-2 ml-1">
+          {/* Phone Number */}
+          <View style={{ marginBottom: 24 }}>
+            <Text style={{ color: "#6d4c41", fontSize: 12, fontWeight: "800", textTransform: "uppercase", marginBottom: 8, marginLeft: 2, letterSpacing: 0.5 }}>
               Phone Number
             </Text>
-            <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-4 py-3">
-              <Phone size={20} color="#6b7280" />
+            <View style={{ flexDirection: "row", alignItems: "center", backgroundColor: "#fff", borderWidth: 1, borderColor: "#f0e0d8", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 }}>
+              <Phone size={18} color="#a1887f" />
               <TextInput
                 value={phone}
                 onChangeText={setPhone}
                 placeholder="Enter your phone number"
-                placeholderTextColor="#9ca3af"
-                className="flex-1 ml-3 text-gray-800 text-base"
+                placeholderTextColor="#a1887f"
+                style={{ flex: 1, marginLeft: 10, fontSize: 15, color: "#3e2723", fontWeight: "500", padding: 0 }}
                 keyboardType="phone-pad"
                 returnKeyType="done"
               />
@@ -197,21 +216,28 @@ export default function EditProfile() {
           <TouchableOpacity
             onPress={handleSave}
             disabled={loading || !hasChanges}
-            className={`mt-6 py-4 rounded-xl flex-row items-center justify-center ${
-              hasChanges && !loading ? "bg-blue-600" : "bg-gray-300"
-            }`}
+            style={{
+              height: 52,
+              borderRadius: 16,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: hasChanges && !loading ? "#3e2723" : "#e5e7eb",
+              shadowColor: "#3e2723",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: hasChanges && !loading ? 0.15 : 0,
+              shadowRadius: 8,
+              elevation: hasChanges && !loading ? 3 : 0,
+            }}
+            activeOpacity={0.9}
           >
             {loading ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
               <>
-                <Check size={20} color={hasChanges ? "#fff" : "#6b7280"} />
-                <Text
-                  className={`ml-2 text-lg font-bold ${
-                    hasChanges ? "text-white" : "text-gray-500"
-                  }`}
-                >
-                  Save Changes
+                <Check size={20} color={hasChanges ? "#fff" : "#9ca3af"} />
+                <Text style={{ marginLeft: 8, fontSize: 15, fontWeight: "800", color: hasChanges ? "#fff" : "#9ca3af", letterSpacing: 0.5 }}>
+                  SAVE CHANGES
                 </Text>
               </>
             )}

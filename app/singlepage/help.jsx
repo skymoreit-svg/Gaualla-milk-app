@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Linking, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, Linking, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { 
@@ -23,15 +23,11 @@ const Help = () => {
   const [expandedSections, setExpandedSections] = useState({});
 
   const handleGoBack = () => {
-    const canGoBack = router.canGoBack();
-    console.log("[BackButton] help pressed", { canGoBack });
     if (router.canGoBack()) {
-      console.log("[BackButton] help -> router.back()");
       router.back();
-      return;
+    } else {
+      router.replace("/(tab)/profile");
     }
-    console.log("[BackButton] help -> fallback /(tab)/profile");
-    router.replace("/(tab)/profile");
   };
 
   const toggleSection = (section) => {
@@ -50,8 +46,7 @@ const Help = () => {
   };
 
   const chatSupport = () => {
-    // In a real app, this would open a chat interface
-    alert('Chat support would open here');
+    Alert.alert('Live Chat Support', 'Our live support assistant will connect with you shortly.');
   };
 
   const faqData = [
@@ -153,111 +148,132 @@ const Help = () => {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header */}
-      <View className="bg-white px-5 py-4 border-b border-gray-200">
-        <View className="flex-row items-center">
+      <View style={styles.header}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity
             onPress={handleGoBack}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-            className="mr-4 p-2 rounded-lg"
+            style={styles.backBtn}
           >
-            <ArrowLeft pointerEvents="none" size={24} color="#374151" />
+            <ArrowLeft size={20} color="#3e2723" />
           </TouchableOpacity>
-          <View className="flex-row items-center">
-            <HelpCircle size={22} color="#3b82f6" />
-            <Text className="text-xl font-bold ml-2 text-gray-900">Help & Support</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <HelpCircle size={20} color="#6d4c41" />
+            <Text style={styles.headerTitle}>Help & Support</Text>
           </View>
         </View>
-        <Text className="text-gray-600 mt-2">
-          We're here to help you with any questions or concerns
-        </Text>
       </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+        {/* Support Banner Info */}
+        <View style={styles.bannerContainer}>
+          <Text style={styles.bannerText}>
+            We're here to help you with any questions or concerns regarding our A2 dairy delivery service.
+          </Text>
+        </View>
+
         {/* Quick Support Options */}
-        <View className="p-5">
-          <Text className="text-lg font-bold text-gray-900 mb-4">Get Quick Help</Text>
-          <View className="flex-row justify-between mb-6">
+        <View style={{ paddingHorizontal: 16, marginTop: 12 }}>
+          <Text style={styles.sectionTitle}>Get Quick Help</Text>
+          <View style={styles.supportOptionsRow}>
+            {/* Phone Support */}
             <TouchableOpacity 
-              className="items-center justify-center bg-white p-4 rounded-xl shadow-sm w-28"
+              style={styles.supportOptionCard}
               onPress={callSupport}
+              activeOpacity={0.8}
             >
-              <Phone size={24} color="#3b82f6" />
-              <Text className="text-gray-700 mt-2 text-center">Call Us</Text>
+              <View style={styles.supportIconWrapper}>
+                <Phone size={20} color="#6d4c41" />
+              </View>
+              <Text style={styles.supportOptionText}>Call Us</Text>
             </TouchableOpacity>
             
+            {/* Email Support */}
             <TouchableOpacity 
-              className="items-center justify-center bg-white p-4 rounded-xl shadow-sm w-28"
+              style={styles.supportOptionCard}
               onPress={emailSupport}
+              activeOpacity={0.8}
             >
-              <Mail size={24} color="#3b82f6" />
-              <Text className="text-gray-700 mt-2 text-center">Email</Text>
+              <View style={styles.supportIconWrapper}>
+                <Mail size={20} color="#6d4c41" />
+              </View>
+              <Text style={styles.supportOptionText}>Email Support</Text>
             </TouchableOpacity>
             
+            {/* Chat Support */}
             <TouchableOpacity 
-              className="items-center justify-center bg-white p-4 rounded-xl shadow-sm w-28"
+              style={styles.supportOptionCard}
               onPress={chatSupport}
+              activeOpacity={0.8}
             >
-              <MessageCircle size={24} color="#3b82f6" />
-              <Text className="text-gray-700 mt-2 text-center">Chat</Text>
+              <View style={styles.supportIconWrapper}>
+                <MessageCircle size={20} color="#6d4c41" />
+              </View>
+              <Text style={styles.supportOptionText}>Live Chat</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Support Hours */}
-          <View className="bg-blue-50 p-4 rounded-xl mb-6">
-            <View className="flex-row items-center">
-              <Clock size={18} color="#3b82f6" />
-              <Text className="text-blue-800 font-medium ml-2">Support Hours: 7 AM - 11 PM (Everyday)</Text>
-            </View>
+          {/* Support Hours Card */}
+          <View style={styles.hoursCard}>
+            <Clock size={16} color="#b45309" />
+            <Text style={styles.hoursText}>Support Hours: 7 AM - 11 PM (Everyday)</Text>
           </View>
         </View>
 
         {/* FAQ Sections */}
-        <View className="px-5">
-          <Text className="text-lg font-bold text-gray-900 mb-4">Frequently Asked Questions</Text>
+        <View style={{ paddingHorizontal: 16, marginTop: 24 }}>
+          <Text style={styles.sectionTitle}>Frequently Asked Questions</Text>
           
-          {faqData.map((section) => (
-            <View key={section.id} className="mb-4">
-              <TouchableOpacity 
-                className="flex-row items-center justify-between bg-white p-4 rounded-t-xl border-b border-gray-100"
-                onPress={() => toggleSection(section.id)}
-              >
-                <View className="flex-row items-center">
-                  <section.icon size={20} color="#4b5563" />
-                  <Text className="text-gray-800 font-medium ml-3">{section.title}</Text>
-                </View>
-                {expandedSections[section.id] ? (
-                  <ChevronUp size={20} color="#9ca3af" />
-                ) : (
-                  <ChevronDown size={20} color="#9ca3af" />
+          {faqData.map((section) => {
+            const isExpanded = expandedSections[section.id];
+            return (
+              <View key={section.id} style={styles.faqWrapper}>
+                <TouchableOpacity 
+                  style={[
+                    styles.faqHeader,
+                    isExpanded ? styles.faqHeaderExpanded : null
+                  ]}
+                  onPress={() => toggleSection(section.id)}
+                  activeOpacity={0.8}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <section.icon size={16} color="#6d4c41" />
+                    <Text style={styles.faqSectionTitle}>{section.title}</Text>
+                  </View>
+                  {isExpanded ? (
+                    <ChevronUp size={16} color="#9ca3af" />
+                  ) : (
+                    <ChevronDown size={16} color="#9ca3af" />
+                  )}
+                </TouchableOpacity>
+                
+                {isExpanded && (
+                  <View style={styles.faqQuestionsContainer}>
+                    {section.questions.map((item, index) => (
+                      <View key={index} style={styles.faqQuestionRow}>
+                        <Text style={styles.questionText}>• {item.q}</Text>
+                        <Text style={styles.answerText}>{item.a}</Text>
+                      </View>
+                    ))}
+                  </View>
                 )}
-              </TouchableOpacity>
-              
-              {expandedSections[section.id] && (
-                <View className="bg-white rounded-b-xl overflow-hidden">
-                  {section.questions.map((item, index) => (
-                    <View key={index} className="p-4 border-b border-gray-100 last:border-b-0">
-                      <Text className="text-gray-900 font-medium mb-2">{item.q}</Text>
-                      <Text className="text-gray-600">{item.a}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
-          ))}
+              </View>
+            );
+          })}
         </View>
 
         {/* Emergency Contact */}
-        <View className="p-5 mt-4">
-          <View className="bg-red-50 p-5 rounded-xl">
-            <Text className="text-red-800 font-bold mb-2">Emergency Quality Issue</Text>
-            <Text className="text-red-700 mb-3">
-              If you have consumed our product and are experiencing health issues, please contact us immediately:
+        <View style={{ paddingHorizontal: 16, marginTop: 28 }}>
+          <View style={styles.emergencyCard}>
+            <Text style={styles.emergencyTitle}>Emergency Quality Support</Text>
+            <Text style={styles.emergencyDesc}>
+              If you have consumed our dairy product and are experiencing critical concerns, reach our escalation desk directly:
             </Text>
-            <TouchableOpacity onPress={callSupport} className="flex-row items-center">
-              <Phone size={18} color="#dc2626" />
-              <Text className="text-red-700 font-bold ml-2">+91-8378-000052</Text>
+            <TouchableOpacity onPress={callSupport} style={styles.emergencyBtn} activeOpacity={0.9}>
+              <Phone size={14} color="#dc2626" style={{ marginRight: 6 }} />
+              <Text style={styles.emergencyPhone}>+91-8378-000052</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -265,5 +281,200 @@ const Help = () => {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F6EFC8',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderColor: '#f5ede8',
+    shadowColor: '#3e2723',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#fdf6f3',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#f0e0d8',
+    marginRight: 12,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#1f2937',
+    letterSpacing: -0.5,
+    marginLeft: 6,
+  },
+  bannerContainer: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderColor: '#f5ede8',
+  },
+  bannerText: {
+    fontSize: 13,
+    color: '#6d4c41',
+    lineHeight: 18,
+    fontWeight: '500',
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#9ca3af',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 12,
+    marginLeft: 2,
+  },
+  supportOptionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+    marginBottom: 16,
+  },
+  supportOptionCard: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#white',
+    backgroundColor: '#fff',
+    paddingVertical: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#f5ede8',
+    shadowColor: '#3e2723',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  supportIconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#fdf8f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#f0e0d8',
+  },
+  supportOptionText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#1f2937',
+  },
+  hoursCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fffbeb',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#fde68a',
+    padding: 12,
+    gap: 8,
+  },
+  hoursText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#b45309',
+  },
+  faqWrapper: {
+    marginBottom: 12,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#f5ede8',
+    overflow: 'hidden',
+  },
+  faqHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  faqHeaderExpanded: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#f5ede8',
+  },
+  faqSectionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginLeft: 10,
+  },
+  faqQuestionsContainer: {
+    padding: 16,
+    backgroundColor: '#fdfbf9',
+  },
+  faqQuestionRow: {
+    marginBottom: 14,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#f5ede8',
+    paddingBottom: 10,
+  },
+  questionText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#3e2723',
+    marginBottom: 4,
+  },
+  answerText: {
+    fontSize: 12,
+    color: '#4b5563',
+    lineHeight: 18,
+  },
+  emergencyCard: {
+    backgroundColor: '#fee2e2',
+    borderWidth: 1,
+    borderColor: '#fca5a5',
+    borderRadius: 20,
+    padding: 16,
+  },
+  emergencyTitle: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#991b1b',
+    marginBottom: 4,
+  },
+  emergencyDesc: {
+    fontSize: 12,
+    color: '#7f1d1d',
+    lineHeight: 18,
+    marginBottom: 12,
+  },
+  emergencyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 0.5,
+    borderColor: '#fca5a5',
+  },
+  emergencyPhone: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#dc2626',
+  },
+});
 
 export default Help;

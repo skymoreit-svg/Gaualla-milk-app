@@ -109,23 +109,27 @@ const Addresses = () => {
   };
 
   const getTagColor = (type) => {
-    if (type === 'home') return '#3b82f6';
-    if (type === 'office') return '#10b981';
+    if (type === 'home') return '#6d4c41';
+    if (type === 'office') return '#3b82f6';
     return '#8b5cf6';
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      {/* Premium Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={22} color="#1f2937" />
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backBtn}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="arrow-back" size={20} color="#3e2723" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Addresses</Text>
-        <View style={{ width: 36 }} />
+        <Text style={styles.headerTitle}>My Delivery Addresses</Text>
+        <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 30 }}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
         {error ? (
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>{error}</Text>
@@ -137,21 +141,25 @@ const Addresses = () => {
 
         {!showForm ? (
           <>
+            {/* Elegant Add Address Button */}
             <TouchableOpacity
               style={styles.addButton}
               onPress={() => { setEditingAddr(null); setShowForm(true); }}
+              activeOpacity={0.9}
             >
               <FontAwesome name="plus" size={14} color="white" />
-              <Text style={styles.addButtonText}>Add New Address</Text>
+              <Text style={styles.addButtonText}>ADD NEW ADDRESS</Text>
             </TouchableOpacity>
 
             {loading ? (
-              <ActivityIndicator size="large" color="#3b82f6" style={{ marginTop: 40 }} />
+              <ActivityIndicator size="large" color="#6d4c41" style={{ marginTop: 40 }} />
             ) : allAddress.length === 0 ? (
               <View style={styles.emptyState}>
-                <FontAwesome name="map-marker" size={40} color="#d1d5db" />
-                <Text style={styles.emptyTitle}>No addresses saved</Text>
-                <Text style={styles.emptySubtitle}>Add an address to get started</Text>
+                <View style={styles.emptyIconContainer}>
+                  <FontAwesome name="map-marker" size={32} color="#a1887f" />
+                </View>
+                <Text style={styles.emptyTitle}>No Addresses Saved</Text>
+                <Text style={styles.emptySubtitle}>Please add your delivery coordinates to start subscribing to daily milk packs.</Text>
               </View>
             ) : (
               allAddress.map((addr) => (
@@ -164,23 +172,25 @@ const Addresses = () => {
                 >
                   {/* Tag + Default Star */}
                   <View style={styles.cardHeader}>
-                    <View style={[styles.tag, { backgroundColor: getTagColor(addr.address_type) + '15' }]}>
-                      <FontAwesome name={getTagIcon(addr.address_type)} size={12} color={getTagColor(addr.address_type)} />
+                    <View style={[styles.tag, { backgroundColor: getTagColor(addr.address_type) + '12' }]}>
+                      <FontAwesome name={getTagIcon(addr.address_type)} size={11} color={getTagColor(addr.address_type)} />
                       <Text style={[styles.tagText, { color: getTagColor(addr.address_type) }]}>
                         {addr.address_type}
                       </Text>
                     </View>
+                    
                     {addr.is_default ? (
                       <View style={styles.defaultBadge}>
-                        <MaterialIcons name="star" size={14} color="#f59e0b" />
-                        <Text style={styles.defaultText}>Default</Text>
+                        <MaterialIcons name="star" size={14} color="#b45309" />
+                        <Text style={styles.defaultText}>Default Address</Text>
                       </View>
                     ) : (
                       <TouchableOpacity
                         onPress={() => handelDefault(addr.id)}
                         style={styles.setDefaultBtn}
+                        activeOpacity={0.7}
                       >
-                        <MaterialIcons name="star-border" size={16} color="#9ca3af" />
+                        <MaterialIcons name="star-border" size={14} color="#9ca3af" />
                         <Text style={styles.setDefaultText}>Set default</Text>
                       </TouchableOpacity>
                     )}
@@ -189,7 +199,10 @@ const Addresses = () => {
                   {/* Address Lines */}
                   <Text style={styles.addressMain}>{addr.street}</Text>
                   {addr.landmark ? (
-                    <Text style={styles.addressSub}>Near {addr.landmark}</Text>
+                    <View style={styles.landmarkContainer}>
+                      <Text style={styles.landmarkLabel}>Landmark: </Text>
+                      <Text style={styles.addressSub}>{addr.landmark}</Text>
+                    </View>
                   ) : null}
                   <Text style={styles.addressSub}>
                     {addr.city}, {addr.state} - {addr.zip_code}
@@ -201,16 +214,20 @@ const Addresses = () => {
                     <TouchableOpacity
                       onPress={() => handleEdit(addr)}
                       style={styles.actionBtn}
+                      activeOpacity={0.7}
                     >
-                      <MaterialIcons name="edit" size={16} color="#3b82f6" />
-                      <Text style={[styles.actionText, { color: '#3b82f6' }]}>Edit</Text>
+                      <MaterialIcons name="edit" size={14} color="#6d4c41" />
+                      <Text style={[styles.actionText, { color: '#6d4c41' }]}>Edit Details</Text>
                     </TouchableOpacity>
+
+                    <View style={styles.actionSeparator} />
 
                     <TouchableOpacity
                       onPress={() => handleDelete(addr)}
                       style={styles.actionBtn}
+                      activeOpacity={0.7}
                     >
-                      <MaterialIcons name="delete-outline" size={16} color="#ef4444" />
+                      <MaterialIcons name="delete-outline" size={14} color="#ef4444" />
                       <Text style={[styles.actionText, { color: '#ef4444' }]}>Delete</Text>
                     </TouchableOpacity>
                   </View>
@@ -229,7 +246,7 @@ const Addresses = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#F6EFC8',
   },
   header: {
     flexDirection: 'row',
@@ -237,151 +254,207 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#fff',
     paddingHorizontal: 16,
-    paddingVertical: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderColor: '#f5ede8',
     elevation: 2,
+    shadowColor: '#3e2723',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
   },
   backBtn: {
-    padding: 6,
-    borderRadius: 8,
-    backgroundColor: '#f3f4f6',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#fdf6f3',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#f0e0d8',
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '900',
     color: '#1f2937',
+    letterSpacing: -0.5,
   },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fef2f2',
-    borderColor: '#fecaca',
+    backgroundColor: '#fee2e2',
+    borderColor: '#fca5a5',
     borderWidth: 1,
     padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
+    borderRadius: 14,
+    marginBottom: 16,
   },
   errorText: {
-    color: '#dc2626',
+    color: '#b91c1c',
+    fontSize: 13,
+    fontWeight: '600',
     flex: 1,
   },
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#16a34a',
+    backgroundColor: '#3e2723',
     padding: 14,
-    borderRadius: 12,
-    marginBottom: 16,
+    borderRadius: 16,
+    marginBottom: 20,
+    elevation: 3,
+    shadowColor: '#3e2723',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
   },
   addButtonText: {
     color: 'white',
-    fontWeight: '600',
-    fontSize: 15,
+    fontWeight: '800',
+    fontSize: 13,
+    letterSpacing: 0.8,
     marginLeft: 8,
   },
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 50,
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: '#d1d5db',
-    borderRadius: 16,
+    padding: 36,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#f5ede8',
+    borderRadius: 24,
+    marginTop: 20,
+  },
+  emptyIconContainer: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#fdf6f3',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#f0e0d8',
   },
   emptyTitle: {
-    color: '#6b7280',
-    marginTop: 12,
+    color: '#3e2723',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 6,
   },
   emptySubtitle: {
-    color: '#9ca3af',
-    marginTop: 4,
-    fontSize: 14,
+    color: '#6d4c41',
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: 'center',
+    maxWidth: 220,
   },
   card: {
     padding: 16,
-    borderRadius: 14,
-    marginBottom: 12,
+    borderRadius: 20,
+    marginBottom: 16,
+    borderWidth: 1,
   },
   cardDefault: {
-    backgroundColor: '#fefce8',
-    borderColor: '#fef08a',
-    borderWidth: 1,
+    backgroundColor: '#fffdfb',
+    borderColor: '#fde68a',
   },
   cardRegular: {
     backgroundColor: '#ffffff',
-    borderColor: '#e5e7eb',
-    borderWidth: 1,
+    borderColor: '#f5ede8',
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
   },
   tagText: {
-    fontSize: 13,
-    fontWeight: '600',
-    textTransform: 'capitalize',
-    marginLeft: 6,
+    fontSize: 11,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    marginLeft: 4,
   },
   defaultBadge: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#fef3c7',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 0.5,
+    borderColor: '#fde68a',
   },
   defaultText: {
-    fontSize: 12,
-    color: '#f59e0b',
-    fontWeight: '600',
-    marginLeft: 4,
+    fontSize: 9,
+    color: '#b45309',
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    marginLeft: 3,
   },
   setDefaultBtn: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   setDefaultText: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#9ca3af',
+    fontWeight: '600',
     marginLeft: 4,
   },
   addressMain: {
     fontSize: 15,
-    fontWeight: '600',
-    color: '#374151',
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  landmarkContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 2,
   },
+  landmarkLabel: {
+    fontSize: 13,
+    color: '#9ca3af',
+    fontWeight: '600',
+  },
   addressSub: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 1,
+    fontSize: 13,
+    color: '#4b5563',
+    lineHeight: 18,
   },
   cardActions: {
     flexDirection: 'row',
-    marginTop: 12,
+    alignItems: 'center',
+    marginTop: 14,
     borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-    paddingTop: 10,
-    gap: 16,
+    borderTopColor: '#f5ede8',
+    paddingTop: 12,
   },
   actionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  actionSeparator: {
+    width: 1,
+    height: 14,
+    backgroundColor: '#f5ede8',
   },
   actionText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     marginLeft: 4,
   },
 });

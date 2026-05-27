@@ -51,14 +51,14 @@ fetchBanner()
 
 
   return (
-   <SafeAreaView className='flex-1 '>
+   <SafeAreaView className='flex-1' style={{ backgroundColor: '#F6EFC8' }}>
 
 
 <ScrollView className=''>  
   <View className='px-3'>
 <View className='flex flex-row gap-1'>
   <Text className='font-semibold text-xl'>Hello</Text>
-  <Text className='font-semibold text-green-600 text-xl'>{username},</Text>
+  <Text className='font-semibold text-primary-600 text-xl'>{username},</Text>
 
 </View>
 <View className='flex flex-row gap-1 items-center'>
@@ -73,7 +73,7 @@ fetchBanner()
 </View>
 
 <View className='px-3 my-2'>
-  <TouchableOpacity onPress={()=>router.push("/singlepage/searchpage")} className=' border-2 border-green-600  flex flex-row  gap-2 rounded-full px-4 py-2  items-center'>
+  <TouchableOpacity onPress={()=>router.push("/singlepage/searchpage")} className=' border-2 border-primary-600  flex flex-row  gap-2 rounded-full px-4 py-2  items-center'>
 <Octicons name="search" size={24} color="green" />
     <Text>Search</Text>
     <Text>Dairy</Text>
@@ -107,8 +107,8 @@ fetchBanner()
         key={index}
         className={`w-2.5 h-2.5 mx-1 rounded-full ${
           index === currentIndex
-            ? 'bg-blue-500 opacity-100'
-            : 'bg-gray-300 opacity-50'
+            ? 'bg-primary-600 opacity-100'
+            : 'bg-appBackground opacity-50'
         }`}
       />
     ))}
@@ -116,14 +116,16 @@ fetchBanner()
 </View>
 
 
-<View className='flex-row flex-wrap justify-evenly mt-8'>
- {allproduct?.map((item,index)=>(
-    <ProductCard product={item} key={index} wid="w-44"/>
- ))}
-</View>
+ <View className='flex-row flex-wrap justify-between px-4 mt-8'>
+  {allproduct?.map((item,index)=>(
+    <View key={index} style={{ width: '48%', marginBottom: 16 }}>
+      <ProductCard product={item} wid="w-full" m="" />
+    </View>
+  ))}
+ </View>
 
   <View className=' m-6 items-center w-full'>
-  <TouchableOpacity onPress={()=>router.push("/(tab)")}  className='px-3 py-1 bg-green-600  font-bold rounded-lg' >
+  <TouchableOpacity onPress={()=>router.push("/(tab)")}  className='px-3 py-1 bg-primary-600  font-bold rounded-lg' >
     <Text className='text-white'>Explore More</Text>
   </TouchableOpacity>
   </View>

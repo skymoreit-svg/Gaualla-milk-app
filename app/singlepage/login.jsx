@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { useEffect, useState } from "react";
 import {
-  View,
+  Alert,
+  Image,
+  Keyboard,
+  Pressable,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  Image,
-  Alert,
-  ScrollView,
-  Keyboard,
-  Pressable,
   useWindowDimensions,
+  View,
 } from "react-native";
-import * as SecureStore from "expo-secure-store";
-import axios from "axios";
-import { baseurl } from "../../allapi";
-import { useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
+import { baseurl } from "../../allapi";
 import { getUser } from "../store/userSlice";
 
 export default function Login() {
@@ -35,22 +35,22 @@ export default function Login() {
   }, []);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Missing Fields", "Please enter email and password.");
+    if (!email.trim() || !password.trim()) {
+      Alert.alert("Missing Fields", "Please enter both email and password.");
       return;
     }
     setLoading(true);
     try {
-      const res = await axios.post(`${baseurl}/login`, { email, password });
+      const res = await axios.post(`${baseurl}/login`, { email: email.trim(), password: password.trim() });
       if (res.data.success && res.data.token) {
         await SecureStore.setItemAsync("authToken", res.data.token);
         await dispatch(getUser());
         router.replace("/(tab)");
       } else {
-        Alert.alert("Login Failed", res.data.message || "Something went wrong");
+        Alert.alert("Login Failed", res.data.message || "Invalid credentials.");
       }
     } catch (error) {
-      const msg = error.response?.data?.message || "Login failed. Please try again.";
+      const msg = error.response?.data?.message || "Login failed. Please verify your connection.";
       Alert.alert("Error", msg);
     } finally {
       setLoading(false);
@@ -59,73 +59,138 @@ export default function Login() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: "#f0fdf4" }}
+      style={{ flex: 1, backgroundColor: "#F6EFC8" }}
       contentContainerStyle={{
         minHeight: keyboardVisible ? undefined : height,
-        justifyContent: keyboardVisible ? "flex-start" : "center",
+        justifyContent: "center",
         padding: 24,
-        paddingTop: keyboardVisible ? 60 : 24,
-        paddingBottom: keyboardVisible ? 40 : 24,
+        paddingTop: keyboardVisible ? 60 : 40,
+        paddingBottom: keyboardVisible ? 40 : 40,
       }}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
       <Pressable onPress={Keyboard.dismiss} style={{ alignItems: "center" }}>
-        <Image
-          source={{ uri: "https://img.icons8.com/color/96/milk-bottle.png" }}
-          className="w-24 h-24 mb-6"
-        />
+        {/* Logo Container */}
+        <View style={{
+          width: 96,
+          height: 96,
+          borderRadius: 48,
+          backgroundColor: "#FFFFFF",
+          borderWidth: 2,
+          borderColor: "#f0e0d8",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 20,
+          shadowColor: "#FFFFFF",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.05,
+          shadowRadius: 10,
+          elevation: 2,
+          overflow: "hidden"
+        }}>
+          <Image
+            source={require("../../assets/images/icon.png")}
+            style={{ width: "100%", height: "100%" }}
+            resizeMode="cover"
+          />
+        </View>
 
-        <Text className="text-3xl font-bold text-green-700 mb-2">
-          Dairy Fresh
+        {/* Title & Slogan */}
+        <Text style={{ fontSize: 32, fontWeight: "950", color: "#3e2723", marginBottom: 6, letterSpacing: -0.5 }}>
+          Gaualla
         </Text>
-        <Text className="text-gray-500 mb-8">
-          Login to manage your dairy products
+        <Text style={{ fontSize: 13, color: "#6d4c41", fontWeight: "500", marginBottom: 32, textAlign: "center" }}>
+          Premium Farm-to-Table A2 Dairy Delivery
         </Text>
 
+        {/* Email Input */}
         <TextInput
-          placeholder="Email"
-          placeholderTextColor="#6b7280"
+          placeholder="Email Address"
+          placeholderTextColor="#a1887f"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
-          className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 mb-4 text-gray-800"
+          style={{
+            width: "100%",
+            backgroundColor: "#fff",
+            borderWidth: 1,
+            borderColor: "#f0e0d8",
+            borderRadius: 16,
+            paddingHorizontal: 16,
+            paddingVertical: 14,
+            fontSize: 15,
+            color: "#3e2723",
+            fontWeight: "500",
+            marginBottom: 16,
+          }}
         />
 
-        <View className="w-full mb-6">
+        {/* Password Input Wrapper */}
+        <View style={{ width: "100%", marginBottom: 28, position: "relative" }}>
           <TextInput
             placeholder="Password"
-            placeholderTextColor="#6b7280"
+            placeholderTextColor="#a1887f"
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
-            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 pr-12 text-gray-800"
+            style={{
+              width: "100%",
+              backgroundColor: "#fff",
+              borderWidth: 1,
+              borderColor: "#f0e0d8",
+              borderRadius: 16,
+              paddingHorizontal: 16,
+              paddingVertical: 14,
+              fontSize: 15,
+              color: "#3e2723",
+              fontWeight: "500",
+              paddingRight: 60,
+            }}
           />
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
-            style={{ position: "absolute", right: 14, top: 14 }}
+            style={{ position: "absolute", right: 16, top: 16 }}
+            activeOpacity={0.7}
           >
-            <Text className="text-gray-500 text-sm font-medium">
+            <Text style={{ color: "#6d4c41", fontSize: 13, fontWeight: "800", textTransform: "uppercase" }}>
               {showPassword ? "Hide" : "Show"}
             </Text>
           </TouchableOpacity>
         </View>
 
+        {/* Login Submit Button */}
         <TouchableOpacity
           onPress={handleLogin}
           disabled={loading}
-          className={`w-full rounded-xl py-3 ${loading ? "bg-green-400" : "bg-green-600"}`}
+          style={{
+            width: "100%",
+            backgroundColor: "#3e2723",
+            borderRadius: 16,
+            paddingVertical: 15,
+            alignItems: "center",
+            justifyContent: "center",
+            opacity: loading ? 0.7 : 1,
+            shadowColor: "#3e2723",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.15,
+            shadowRadius: 8,
+            elevation: 3,
+            marginBottom: 16,
+          }}
+          activeOpacity={0.9}
         >
-          <Text className="text-center text-white font-bold text-lg">
-            {loading ? "Logging in..." : "Login"}
+          <Text style={{ color: "#fff", fontWeight: "800", fontSize: 16, letterSpacing: 0.5 }}>
+            {loading ? "AUTHENTICATING..." : "LOG IN"}
           </Text>
         </TouchableOpacity>
 
-        <View className="flex-row justify-center w-full mt-4 mb-8">
-          <Text className="text-gray-500">Don't have an account? </Text>
-          <TouchableOpacity onPress={() => router.push("/singlepage/signup")}>
-            <Text className="text-green-600 font-semibold">Sign Up</Text>
+        {/* Signup Redirect Footer */}
+        <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: 8 }}>
+          <Text style={{ color: "#6d4c41", fontSize: 14 }}>Don't have an account? </Text>
+          <TouchableOpacity onPress={() => router.push("/singlepage/signup")} activeOpacity={0.7}>
+            <Text style={{ color: "#3e2723", fontWeight: "800", fontSize: 14 }}>Sign Up</Text>
           </TouchableOpacity>
         </View>
       </Pressable>

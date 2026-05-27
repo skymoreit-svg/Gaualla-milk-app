@@ -1,20 +1,21 @@
-import React, { useState, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import axios from "axios";
+import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { ArrowLeft, Heart, ShoppingCart, Trash2 } from "lucide-react-native";
+import { useCallback, useState } from "react";
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  Image,
-  FlatList,
-  Alert,
-  ActivityIndicator,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { useFocusEffect } from "@react-navigation/native";
-import * as SecureStore from "expo-secure-store";
-import axios from "axios";
 import Toast from "react-native-toast-message";
-import { ArrowLeft, Heart, Trash2, ShoppingCart } from "lucide-react-native";
 import { baseurl, imgurl } from "../../allapi";
 
 export default function Wishlist() {
@@ -24,15 +25,11 @@ export default function Wishlist() {
   const [removingId, setRemovingId] = useState(null);
 
   const handleGoBack = () => {
-    const canGoBack = router.canGoBack();
-    console.log("[BackButton] wishlist pressed", { canGoBack });
     if (router.canGoBack()) {
-      console.log("[BackButton] wishlist -> router.back()");
       router.back();
-      return;
+    } else {
+      router.replace("/(tab)/profile");
     }
-    console.log("[BackButton] wishlist -> fallback /(tab)/profile");
-    router.replace("/(tab)/profile");
   };
 
   const fetchWishlist = async () => {
@@ -129,74 +126,59 @@ export default function Wishlist() {
 
     return (
       <TouchableOpacity
-        activeOpacity={0.7}
+        activeOpacity={0.85}
         onPress={() => router.push(`/singlepage/${item.slug}`)}
-        className="bg-white mx-4 mb-3 rounded-2xl overflow-hidden shadow-sm border border-gray-100"
+        style={styles.card}
       >
-        <View className="flex-row">
-          {/* Product Image */}
-          <View className="w-28 h-28 bg-gray-100">
+        <View style={styles.cardContent}>
+          {/* Image */}
+          <View style={styles.imageContainer}>
             {imageUri ? (
-              <Image
-                source={{ uri: imageUri }}
-                className="w-full h-full"
-                resizeMode="cover"
-              />
+              <Image source={{ uri: imageUri }} style={styles.image} resizeMode="contain" />
             ) : (
-              <View className="w-full h-full items-center justify-center">
-                <Heart size={32} color="#d1d5db" />
+              <View style={styles.imagePlaceholder}>
+                <Heart size={24} color="#a1887f" />
               </View>
             )}
           </View>
 
-          {/* Product Details */}
-          <View className="flex-1 p-3 justify-between">
+          {/* Details */}
+          <View style={styles.detailsContainer}>
             <View>
-              <Text
-                className="text-base font-semibold text-gray-800"
-                numberOfLines={2}
-              >
-                {item.name}
-              </Text>
+              <Text style={styles.productName} numberOfLines={2}>{item.name}</Text>
               {item.unit_quantity ? (
-                <Text className="text-xs text-gray-500 mt-1">
-                  {item.unit_quantity}
-                </Text>
+                <Text style={styles.unitText}>{item.unit_quantity}</Text>
               ) : null}
             </View>
 
-            <View className="flex-row items-center justify-between mt-2">
-              <View className="flex-row items-center">
-                <Text className="text-lg font-bold text-gray-900">
-                  ₹{item.price}
-                </Text>
-                {item.old_price ? (
-                  <Text className="text-xs text-gray-400 line-through ml-2">
-                    ₹{item.old_price}
-                  </Text>
-                ) : null}
-              </View>
+            <View style={styles.priceRow}>
+              <Text style={styles.priceText}>₹{item.price}</Text>
+              {item.old_price ? (
+                <Text style={styles.oldPriceText}>₹{item.old_price}</Text>
+              ) : null}
             </View>
           </View>
 
-          {/* Action Buttons */}
-          <View className="justify-center items-center px-3 space-y-3">
+          {/* Actions */}
+          <View style={styles.actionsContainer}>
             <TouchableOpacity
               onPress={() => handleAddToCart(item.product_id, item.price)}
-              className="bg-green-50 p-2.5 rounded-xl"
+              style={styles.cartBtn}
+              activeOpacity={0.8}
             >
-              <ShoppingCart size={18} color="#16a34a" />
+              <ShoppingCart size={16} color="#15803d" />
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => handleRemove(item.product_id)}
               disabled={isRemoving}
-              className="bg-red-50 p-2.5 rounded-xl mt-2"
+              style={styles.removeBtn}
+              activeOpacity={0.8}
             >
               {isRemoving ? (
-                <ActivityIndicator size={18} color="#ef4444" />
+                <ActivityIndicator size="small" color="#dc2626" />
               ) : (
-                <Trash2 size={18} color="#ef4444" />
+                <Trash2 size={16} color="#dc2626" />
               )}
             </TouchableOpacity>
           </View>
@@ -207,51 +189,50 @@ export default function Wishlist() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center">
-        <ActivityIndicator size="large" color="#6366f1" />
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#6d4c41" />
+        </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header */}
-      <View className="bg-white flex-row items-center px-4 py-4 shadow-sm">
-        <TouchableOpacity
-          onPress={handleGoBack}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          className="p-2 rounded-lg bg-gray-100"
-        >
-          <ArrowLeft pointerEvents="none" size={22} color="#1f2937" />
-        </TouchableOpacity>
-        <Text className="text-xl font-bold text-gray-900 ml-4">
-          My Wishlist
-        </Text>
-        {items.length > 0 && (
-          <View className="ml-2 bg-red-100 px-2.5 py-0.5 rounded-full">
-            <Text className="text-red-600 text-xs font-bold">
-              {items.length}
-            </Text>
-          </View>
-        )}
+      <View style={styles.header}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={handleGoBack}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            style={styles.backBtn}
+          >
+            <ArrowLeft size={20} color="#3e2723" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>My Wishlist</Text>
+          {items.length > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{items.length}</Text>
+            </View>
+          )}
+        </View>
       </View>
 
       {items.length === 0 ? (
-        <View className="flex-1 justify-center items-center px-6">
-          <Heart size={64} color="#d1d5db" />
-          <Text className="text-xl font-bold text-gray-700 mt-4">
-            Your wishlist is empty
-          </Text>
-          <Text className="text-gray-500 mt-2 text-center">
-            Items you add to your wishlist will appear here.
+        <View style={styles.emptyContainer}>
+          <View style={styles.emptyIconContainer}>
+            <Heart size={36} color="#a1887f" />
+          </View>
+          <Text style={styles.emptyTitle}>Your wishlist is empty</Text>
+          <Text style={styles.emptySubtitle}>
+            Save your favorite organic products and fresh dairy items here for quick orders.
           </Text>
           <TouchableOpacity
             onPress={() => router.push("/(tab)")}
-            className="mt-6 bg-green-600 px-8 py-3 rounded-xl"
+            style={styles.browseBtn}
+            activeOpacity={0.9}
           >
-            <Text className="text-white font-bold text-base">
-              Browse Products
-            </Text>
+            <Text style={styles.browseBtnText}>EXPLORE PRODUCTS</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -266,3 +247,204 @@ export default function Wishlist() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F6EFC8',
+  },
+  centerContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderColor: '#f5ede8',
+    elevation: 2,
+    shadowColor: '#3e2723',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#fdf6f3',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#f0e0d8',
+    marginRight: 12,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#1f2937',
+    letterSpacing: -0.5,
+  },
+  badge: {
+    backgroundColor: '#fee2e2',
+    borderWidth: 0.5,
+    borderColor: '#fca5a5',
+    borderRadius: 10,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    marginLeft: 8,
+  },
+  badgeText: {
+    color: '#ef4444',
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#f5ede8',
+    shadowColor: '#3e2723',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
+    overflow: 'hidden',
+  },
+  cardContent: {
+    flexDirection: 'row',
+  },
+  imageContainer: {
+    width: 96,
+    height: 96,
+    backgroundColor: '#fdf6f3',
+    borderRightWidth: 1,
+    borderRightColor: '#f5ede8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  imagePlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  detailsContainer: {
+    flex: 1,
+    padding: 12,
+    justifyContent: 'space-between',
+  },
+  productName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1f2937',
+    lineHeight: 18,
+  },
+  unitText: {
+    fontSize: 11,
+    color: '#6d4c41',
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+  },
+  priceText: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#3e2723',
+  },
+  oldPriceText: {
+    fontSize: 11,
+    color: '#9ca3af',
+    textDecorationLine: 'line-through',
+    marginLeft: 6,
+  },
+  actionsContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    borderLeftWidth: 1,
+    borderLeftColor: '#f5ede8',
+    gap: 8,
+  },
+  cartBtn: {
+    backgroundColor: '#d1fae5',
+    borderWidth: 0.5,
+    borderColor: '#a7f3d0',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  removeBtn: {
+    backgroundColor: '#fee2e2',
+    borderWidth: 0.5,
+    borderColor: '#fca5a5',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+  },
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#fdf6f3',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#f0e0d8',
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#3e2723',
+    marginBottom: 6,
+  },
+  emptySubtitle: {
+    fontSize: 12,
+    color: '#6d4c41',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 24,
+  },
+  browseBtn: {
+    backgroundColor: '#3e2723',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 14,
+    elevation: 2,
+    shadowColor: '#3e2723',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+  },
+  browseBtnText: {
+    color: 'white',
+    fontSize: 13,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+});
